@@ -1,20 +1,26 @@
 import inquirer from "inquirer"
 import * as path from 'path'
-import { create as createWorker } from '../Workers/create'
+import { createProccess } from '../Workers/create'
 import { Worker } from 'worker_threads'
+import { ChildProcess } from "child_process"
+
+// console.log(TURING.Version());
+
 
 export default class {
 	running: boolean = false
-	workers: Worker[] = []
+	processes: ChildProcess[] = []
 	constructor() {
 
 	}
 	stop() {
-		if (this.running && this.workers.length) {
-			this.workers.forEach(worker => {
-				worker.terminate()
+		console.log('stop');
+
+		if (this.running && this.processes.length) {
+			this.processes.forEach(pro => {
+				pro.kill()
 			})
-			this.workers = []
+			this.processes = []
 			this.running = false
 			// this.start()
 		}
@@ -41,14 +47,14 @@ export default class {
 				if (answers.FUNCTIONS === '挂机') {
 					// Use user feedback for... whatever!!
 					this.running = true
-					const mainWorker = createWorker(path.resolve(__dirname, '../Workers/main'))
-					const uiWorker = createWorker(path.resolve(__dirname, '../Workers/ui'))
+					const main = createProccess(path.resolve(__dirname, '../Workers/main'))
+					const ui = createProccess(path.resolve(__dirname, '../Workers/ui'))
 
-					uiWorker.addListener('message', (data: UIData) => {
-						mainWorker.postMessage(data)
+					ui.addListener('message', (data: UIData) => {
+						main.send(data)
 					})
 
-					this.workers = [mainWorker, uiWorker]
+					this.processes = [main, ui]
 				}
 			})
 			.catch((error) => {

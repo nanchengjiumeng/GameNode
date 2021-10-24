@@ -1,17 +1,19 @@
 
-import { parentPort } from "worker_threads";
-import { UI } from "../UI/UI";
+import { UI } from "../UI/UI"
+
 
 /**
  * ui进程，不断的获取新的ui数据，用于分发给主线程
  */
 const ui = new UI(true)
 
-// ui.destroyed()
+try {
+	ui.destroyed()
+} catch {
+
+}
 
 const start = ui.bindHandle()
-
-
 
 while (start) {
 	ui.update()
@@ -20,6 +22,7 @@ while (start) {
 		mapName: ui.mapName,
 		hp: ui.characterHp
 	}
-	parentPort.postMessage(data)
+	process.send(data)
+	// parentPort.postMessage(data)
 }
 

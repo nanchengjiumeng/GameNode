@@ -20,7 +20,7 @@
     "iohook": "^0.9.3",
     "pathfinding": "^0.4.18",
     "ts-turing": "git+https://github.com/nanchengjiumeng/turing-ts.git",
-    "winax": "1.19.0",
+    "winax": "^3.3.1",
     "xstate": "^4.25.0"
   },
   "bin": "dist/index.js",

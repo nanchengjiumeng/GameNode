@@ -1,6 +1,6 @@
 import Character from "../Base/Charater";
 import MirMap from "../Base/MirMap";
-import { parentPort } from "worker_threads";
+// import { parentPort } from "worker_threads";
 import { STATEMACHINE } from '../Main/State'
 
 
@@ -10,14 +10,14 @@ import { STATEMACHINE } from '../Main/State'
 const map = new MirMap()
 const character = new Character()
 
-parentPort.addListener('message', (data: UIData) => {
+process.addListener('message', (data: UIData) => {
 	map.updateMapName(data.mapName)
 	map.updateMapElement(data.elements)
 	character.setElement(data.elements[0])
 	character.setHp(data.hp)
 })
 
-const stateMachine = new STATEMACHINE(map, character)
+new STATEMACHINE(map, character)
 
 
 
