@@ -6,7 +6,7 @@ export default class Character {
 	hp: number[]
 	yinshenPosition: MirPosition | undefined
 	yinshenTimestamp: number = 0
-	yinshenCD = 10 * 1000 * 1000
+	yinshenCD = 10 * 1000
 	setElement(el: MirElement) {
 		this.element = el
 	}
@@ -19,7 +19,7 @@ export default class Character {
 		const oX = position.x - p.x, oY = position.y - p.y
 
 		const screenX = this.element.positionScreen[0][0] + (oX * PIXEL_MAP_BLOCK_WIDTH)
-		const screenY = this.element.positionScreen[0][1] + (oY * PIXEL_MAP_BLOCK_HEIGHT)
+		const screenY = this.element.positionScreen[0][1] + (oY * PIXEL_MAP_BLOCK_HEIGHT) + 15
 		return [
 			[screenX, screenY],
 			[
@@ -37,12 +37,18 @@ export default class Character {
 		baihu(delay)
 	}
 
+	timestamp() {
+		return Number(new Date)
+	}
+
 	yinshen() {
-		const timestamp = Number(new Date)
+		const timestamp = this.timestamp()
 		if (timestamp - this.yinshenTimestamp > this.yinshenCD) {
-			const isSamePlace = this.element.position.x === this.yinshenPosition.x && this.element.position.y === this.yinshenPosition.y
-			if (isSamePlace) {
+			const isSamePlace = this.yinshenPosition && this.element.position.x === this.yinshenPosition.x && this.element.position.y === this.yinshenPosition.y
+			if (!isSamePlace) {
 				yinshen()
+				this.yinshenTimestamp = timestamp
+				this.yinshenPosition = this.element.position
 			}
 		}
 	}

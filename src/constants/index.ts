@@ -1,3 +1,6 @@
+
+export const MIR_PATH = 'D:/完美火龙202109'
+
 export const MapWorkerRunnerStopReason = [
 	{ reason: 200, text: '正常结束' },
 	{ reason: 401, text: '内部中断' },
@@ -35,7 +38,7 @@ const COLOR_EQUE_NAME_BL = '0000FF'
 
 export const COLOR_EQUE = [
 	COLOR_EQUE_NAME_SZ, COLOR_EQUE_NAME_LT, COLOR_EQUE_NAME_QHLT, COLOR_EQUE_NAME_TL,
-	COLOR_EQUE_NAME_ZS, COLOR_EQUE_NAME_HL
+	COLOR_EQUE_NAME_ZS, COLOR_EQUE_NAME_HL, 'FFFFFF'
 ].join('|')
 
 // 人物
@@ -69,6 +72,7 @@ export const PIXEL_MAP_BLOCK_COLUMN_NUMBER = 22;
 
 export const FILE_PATH_FONT_LIB_SONG = "electron/song.lib";
 export const FILE_PATH_FONT_LIB_HP = "electron/hp.lib";
+export const FILE_PATH_FONT_LIB_BAR = "electron/bar.lib";
 export const FILE_PATH_FONT_LIB_SXFZ = "electron/sxfz.lib"
 export const FILE_PATH_FONT_LIB = "electron/font.lib";
 export const FILE_PATH_MON_LIB = "electron/mon.lib";

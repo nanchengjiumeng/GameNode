@@ -8,6 +8,7 @@ interface Fyl {
 	RightClick: (count?: number) => void,
 	M_ResolutionUsed: (x: number, y: number) => void,
 	MoveTo3: (x: number, y: number) => void,
+	MoveTo2: (x: number, y: number) => void,
 	KeyPress: (keycode: number, n?: number) => void
 }
 

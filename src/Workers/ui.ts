@@ -5,24 +5,21 @@ import { UI } from "../UI/UI"
 /**
  * ui进程，不断的获取新的ui数据，用于分发给主线程
  */
-const ui = new UI(true)
+// const ui = new UI(true)
+const ui = new UI(false)
 
-try {
-	ui.destroyed()
-} catch {
+ui.bindHandle()
 
-}
-
-const start = ui.bindHandle()
-
-while (start) {
-	ui.update()
-	const data: UIData = {
-		elements: ui.allObjects,
-		mapName: ui.mapName,
-		hp: ui.characterHp
+process.on("message", ({ type }) => {
+	if (type === 'update') {
+		ui.update()
+		const data: UIData = {
+			elements: ui.allObjects,
+			mapName: ui.mapName,
+			hp: ui.characterHp
+		}
+		process.send(data)
 	}
-	process.send(data)
-	// parentPort.postMessage(data)
-}
+})
 
+	// parentPort.postMessage(data)

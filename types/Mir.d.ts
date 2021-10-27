@@ -1,11 +1,12 @@
-declare type MirElementType = 1 | 2 | 3 | 4
+declare type MirElementType = 0 | 1 | 2 | 3 | 4  // 未知|人物/白虎/怪物/装备
 declare interface MirElement {
 	name: string,
 	type: MirElementType,
 	block: boolean,
 	position: MirPosition,
 	positionScreen?: Rect,
-	distance?: number
+	distance?: number,
+	originPosition?: { x: number, y: number }
 }
 
 

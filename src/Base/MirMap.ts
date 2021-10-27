@@ -1,7 +1,9 @@
-import { MAP_LIST } from "../Constants";
+import { MAP_LIST, MIR_PATH } from "../Constants";
 import MirMapFile from "../Sources/MirMapLoader";
 import Computed from "../UI/Computed";
 import Pathfinding from "pathfinding";
+import path from "path";
+import { logger } from "../Main/logger";
 
 export default class MirMap {
 	public file!: MirMapFile
@@ -16,11 +18,14 @@ export default class MirMap {
 	}
 
 	updateMapName(mapName: string) {
+
 		if (mapName !== this.name) {
+			logger.error(`地图切换:${mapName}<-${this.name} `);
+			this.name = mapName
 			const map = this.mapList.find(item => item.name.includes(mapName))
 			if (map) {
-				const file = new MirMapFile(map.path, map.hd)
-				if (file.error) {
+				this.file = new MirMapFile(path.join(MIR_PATH, map.path), map.hd)
+				if (this.file.error) {
 					throw new EvalError("地图文件加载失败!")
 				}
 				this.mapInfo = map
@@ -63,30 +68,15 @@ export default class MirMap {
 	 * @param exact 
 	 * @returns 
 	 */
-	findAPositionCanAcross(position: MirPosition, exact = 0): null | MirPosition {
-		const round = [-1 * exact, exact], len = round.length
-		let rp: MirPosition | null = null
-		if (exact !== 0) {
-			const p = this.findAPositionCanAcross(position, exact - 1)
-			if (p) {
-				return p
-			} else {
-				for (let i = 0; i < len; i++) {
-					const oxi = position.x + round[i]
-					for (let n = 0; n < len; n++) {
-						const oyn = position.y + round[n]
-						const posi = { x: oxi, y: oyn }
-						const can = this.canPositionAcross(posi)
-						if (can) {
-							rp = posi
-							break;
-						}
-					}
-				}
+	findAPositionCanAcross(position: MirPosition, exact = 0, min = 0): null | MirPosition {
+		const directions = [[-1, -1], [-1, 1], [-1, 0], [1, -1], [1, 1], [1, 0], [0, -1], [0, 1], [0, 0]]
+		for (let d = 0; d < 8; d++) {
+			for (let i = min; i <= exact; i++) {
+				const p = { x: directions[d][0] * i + position.x, y: directions[d][1] * i + position.y }
+				if (this.canPositionAcross(p)) return p
 			}
 		}
-		if (exact === 0 && this.canPositionAcross(position)) rp = position
-		return rp
+		return null
 	}
 
 	// 随机一个目击地
@@ -103,16 +93,20 @@ export default class MirMap {
 	}
 
 	// 计算寻路坐标
-	lpa(position: MirPosition, target: MirPosition) {
+	lpa(position: MirPosition, target: MirPosition, monster = false, distance = 0) {
 		const finder = new Pathfinding.BestFirstFinder({ diagonalMovement: 4 });
+		if (monster) {
+			this.tmpBinary[target.y][target.x] = 0
+		}
 		const roadPath = finder.findPath(position.x, position.y, target.x, target.y, new Pathfinding.Grid(this.tmpBinary))
-		this.roadPath = roadPath.slice(1).map(([x, y]) => ({ x, y }))
+		this.roadPath = roadPath.slice(1, roadPath.length - distance).map(([x, y]) => ({ x, y }))
 	}
 
 	// 找到一个坐标附近的所有元素，按距离排序
 	findAllMirElement(position: MirPosition, type: MirElementType, round: number = 1, sort = true) {
 		const els = this.els.filter((el) => {
 			if (el.type !== type) return false
+			if (el.type === 4 && !this.canPositionAcross(el.position)) return
 			el.distance = Computed.distance(position, el.position)
 			return el.distance <= round
 		})

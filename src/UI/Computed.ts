@@ -21,4 +21,11 @@ export default class Computed {
 			((p2.x - p1.x === p2.y - p1.y) && (p3.x - p2.x === p3.y - p2.y))
 	}
 
+	static sleep(time = 300) {
+		return new Promise((resolve) => {
+			setTimeout(() => {
+				resolve(true)
+			}, time)
+		})
+	}
 }

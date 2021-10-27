@@ -4,19 +4,12 @@ const { createTuring } = require('ts-turing')
 
 const TURING = createTuring()
 
-console.log(TURING.Version());
-
-
 import {
 	COLOR_EQUE,
-	COLOR_HP_REGION_GAME,
-	COLOR_HP_SIMILAR,
-	COLOR_TEXT_PET,
-	FILE_PATH_FONT_LIB,
+	FILE_PATH_FONT_LIB_BAR,
 	FILE_PATH_FONT_LIB_HP,
 	FILE_PATH_FONT_LIB_SONG,
-	FILE_PATH_FONT_LIB_SXFZ,
-	FILE_PATH_MON_LIB,
+	MIR_PATH,
 	PIXEL_MAP_BLOCK_COLUMN_NUMBER,
 	PIXEL_MAP_BLOCK_HEIGHT,
 	PIXEL_MAP_BLOCK_ROW_NUMBER,
@@ -65,7 +58,7 @@ export class UI extends Computed {
 	allObjects: MirElement[] = []
 	constructor(
 		public debug: boolean,
-		public mir = "D:/完美火龙202109",
+		public mir = MIR_PATH,
 		public handleKey = "正式开放",
 	) {
 		super()
@@ -73,19 +66,20 @@ export class UI extends Computed {
 		TURING.Lib_Add(1);
 		TURING.Lib_Load(path.join(this.mir, FILE_PATH_FONT_LIB_HP));
 		TURING.Lib_Add(2);
-		TURING.Lib_Create("宋体", 9, "DFZ"); // 道士/法师/战士
+		TURING.Lib_Load(path.join(this.mir, FILE_PATH_FONT_LIB_BAR));
+		// TURING.Lib_Create("宋体", 9, "DFZ"); // 道士/法师/战士
 		TURING.Lib_Add(3);
 		TURING.Lib_Create("宋体", 9, "白"); // 白虎
-		TURING.Lib_Add(4);
-		TURING.Lib_Load(path.join(this.mir, FILE_PATH_FONT_LIB_SXFZ)); // 四项法阵
 		TURING.Lib_Add(5);
-		TURING.Lib_Create("宋体", 9)
+		TURING.Lib_Create("宋体", 9, "牛魔大厅四项法阵盟重城1234567890:")
 		TURING.Lib_Add(6)
 
 		this.findHandle()
 
 		if (this.debug) {
 			TURING.Display_Open()
+		} else {
+			TURING.Display_Close()
 		}
 
 	}
@@ -147,32 +141,12 @@ export class UI extends Computed {
 		TURING.Lib_Use(2);
 		const ret = TURING.OCR(85) || "";
 		const match = ret.match(/(\d+)\/(\d+)/i);
+
 		if (ret && match) {
 			const left = match[1];
 			const all = match[2];
 			this.characterHp = [Number(left), Number(all)];
 		}
-	}
-
-	// 识别角色位置
-	ocrPositionOfcharacters() {
-		this.loadRegionFromScreen(this.regionGame);
-		TURING.Lib_Use(3);
-		TURING.Filter_Binaryzation("FFFFFF");
-		TURING.Incise_ScopeAisle(2, 1);
-
-		const res = TURING.OCR(85, 1);
-		const objects = this.positionName(
-			res,
-			1,
-			(x, y) => {
-				return {
-					x: x - 1,
-					y: y + 1,
-				};
-			}
-		);
-		this.allObjects = this.allObjects.concat(objects);
 	}
 
 	// 识别地图名称以及人物当前坐标
@@ -183,6 +157,7 @@ export class UI extends Computed {
 		TURING.Lib_Use(6);
 		const ret = TURING.OCR(95).replace(/(O|o)/g, "0") || "";
 		const match = ret.match(/([^\x00-\xff]+)(\d+):(\d+)/);
+
 		if (ret && match) {
 			this.mapName = match[1];
 			const x = Number(match[2]);
@@ -201,21 +176,45 @@ export class UI extends Computed {
 	// 识别根据图灵字符串位置，转换成游戏坐标
 	positionName(
 		res: string,
-		type: 1 | 2 | 3,
-		callback: (x: number, y: number) => MirPosition
+		type: 0 | 1 | 2 | 3,
+		callback: (x: number, y: number, text?: string) => MirPosition
 	): MirElement[] {
+		if (!res) {
+			return []
+		}
 		const sp = res.split("|");
 		const text = sp.slice(0, 1)[0].split("");
 		const list = sp.slice(1).map((s: any) => UI.str2Position(s as string));
 		const pList = list.map((item, idx) => {
+			// 将b的转换成血条位置
+			if (text[idx] === 'b') {
+				item.x = item.x - 27
+				item.y = item.y + 11
+				text[idx] === '血'
+			}
+
+			if (text[idx] === '虎') {
+				item.x = item.x - 11
+				item.y = item.y
+				text[idx] = '白'
+			}
+
+			if (text[idx] === '白') {
+				item.x = item.x + 20
+				item.y = item.y - 39
+			}
+
+
 			const { x, y } = item;
 			const px = Math.floor((x + 24) / PIXEL_MAP_BLOCK_WIDTH);
 			const py = Math.floor(y / PIXEL_MAP_BLOCK_HEIGHT);
 			const ret: MirElement = {
 				position: callback(
 					this.characterPosition?.x + px - 14,
-					this.characterPosition?.y + py - 9
+					this.characterPosition?.y + py - 9,
+					text[idx]
 				),
+				originPosition: { x, y },
 				name: text[idx],
 				type,
 				block: true,
@@ -232,9 +231,8 @@ export class UI extends Computed {
 		TURING.Filter_Binaryzation("FFFFFF")
 		TURING.Filter_DespeckleEx(5, true, 1)
 		TURING.Incise_ScopeAisle(2, 1, "10-24", "10-24")
-		TURING.Lib_Use(4)
+		TURING.Lib_Use(5)
 		const res = TURING.OCR(85, 1);
-		console.log(res);
 
 		const objects = this.positionName(
 			res,
@@ -248,41 +246,6 @@ export class UI extends Computed {
 		);
 		this.allObjects = this.allObjects.concat(objects);
 	}
-
-	// 识别牛魔七层的带牛字儿的怪物
-	ocrPositionOfMonstersNiu() {
-		this.loadRegionFromScreen(this.regionGame);
-		// TURING.Filter_Binaryzation("0-206")
-		// TURING.Incise_FixedLocation(
-		// 	11,
-		// 	15,
-		// 	11,
-		// 	12,
-		// 	PIXEL_MAP_BLOCK_WIDTH,
-		// 	PIXEL_MAP_BLOCK_ROW_NUMBER,
-		// 	PIXEL_MAP_BLOCK_HEIGHT,
-		// 	PIXEL_MAP_BLOCK_COLUMN_NUMBER
-		// );
-		TURING.Filter_Binaryzation("202-255")
-		TURING.Filter_InverseColor(2)
-		TURING.Incise_ScopeAisle(2, 1)
-		TURING.Lib_Create("宋体", 9, "魔");
-		const res = TURING.OCR(85, 1);
-		console.log(res);
-
-		const objects = this.positionName(
-			res,
-			3,
-			(x: number, y: number) => {
-				return {
-					x,
-					y: y - 1,
-				};
-			}
-		);
-		this.allObjects = this.allObjects.concat(objects);
-	}
-
 
 	// 通过文字定位装备位置
 	positionEquements(res: string): MirElement[] {
@@ -290,15 +253,16 @@ export class UI extends Computed {
 		var text = a.slice(0, 1)[0].split('')
 		var pixel = a.slice(1)
 		const objects: MirElement[] = []
+		const throughCenter = []
 		text.forEach((t, i) => {
 			const p = pixel[i].split(',').map(Number)
 			const left = p[1] % PIXEL_MAP_BLOCK_HEIGHT
 			if (left < 23 || left > 25) {
 				return
 			}
-			const x = (p[0] + this.regionPickUp[0][0] + PIXEL_MAP_BLOCK_START_X) / 48 + this.characterPosition[0] - 15
+			const x = (p[0] + this.regionPickUp[0][0] + PIXEL_MAP_BLOCK_START_X) / 48 + this.characterPosition.x - 15
 			const fx = Math.floor(x)
-			const y = Math.floor((p[1] + this.regionPickUp[0][1]) / PIXEL_MAP_BLOCK_HEIGHT) + this.characterPosition[1] - 10
+			const y = Math.floor((p[1] + this.regionPickUp[0][1]) / PIXEL_MAP_BLOCK_HEIGHT) + this.characterPosition.y - 10
 			const obj = objects.find((o) => o.type === 4 && o.position.x === fx && o.position.y === y)
 			if (obj) {
 				obj.name += t
@@ -307,8 +271,9 @@ export class UI extends Computed {
 					name: t,
 					position: { x: fx, y },
 					type: 4,
-					block: true,
+					block: false,
 				})
+				throughCenter.push(false)
 			}
 			if (x % 1 < 0.1) {
 				const obj = objects.find((o) => o.type === 4 && o.position.x === (fx - 1) && o.position.y === y)
@@ -319,8 +284,9 @@ export class UI extends Computed {
 						name: t,
 						position: { x: fx - 1, y },
 						type: 4,
-						block: true,
+						block: false,
 					})
+					throughCenter.push(false)
 				}
 			}
 		})
@@ -339,33 +305,15 @@ export class UI extends Computed {
 		TURING.Incise_ScopeAisle(2, 1)
 		TURING.Incise_AutoCharData()
 		const ret = TURING.OCR(85, 1)
-		if (ret.length === 0) {
+		if (!ret) {
 			return
 		} else {
 			const objects = this.positionEquements(ret)
+
 			this.allObjects = this.allObjects.concat(objects)
 		}
 	}
 
-	// 识别白虎的位置
-	ocrPositionOfPets() {
-		this.loadRegionFromScreen(this.regionGame);
-		TURING.Lib_Use(4);
-		TURING.Filter_Binaryzation(COLOR_TEXT_PET);
-		TURING.Incise_ScopeAisle(2, 1);
-		const res = TURING.OCR(85, 1);
-		const objects = this.positionName(
-			res,
-			2,
-			(x: number, y: number) => {
-				return {
-					x,
-					y: y - 1,
-				};
-			}
-		);
-		this.allObjects = this.allObjects.concat(objects);
-	}
 
 
 	/** 将游戏坐标转换成屏幕位置 */
@@ -382,15 +330,50 @@ export class UI extends Computed {
 		}
 	}
 
+	processElements() {
+		let objs: MirElement[] = []
+		const q = ['我', '白', '道', '战', '法', '血', 'b']
+		const b: MirElement[] = []
+		this.allObjects.forEach((obj) => {
+			const find = objs.find(o => o.position.x === obj.position.x && o.position.y === obj.position.y)
+			if (find) {
+				obj.name = q[Math.min(q.indexOf(find.name), q.indexOf(obj.name))]
+			} else {
+				objs.push(obj)
+				if (obj.type === 2) {
+					b.push(obj)
+				}
+			}
+		})
+		objs = objs.map(o => {
+			if (o.type === 0) {
+				o.type = 3
+				if (o.name === '战' || o.name === '道' || o.name === '法') o.type = 1
+				if (o.name === '白') o.type = 2
+			}
+			return o
+		});
+		this.allObjects = objs
+		this.allObjects.forEach(el => {
+			const p = el.position
+			const sp = this.transformGamePositionToScreenPosition(p)
+			el.positionScreen = [
+				[sp.x, sp.y],
+				[sp.x + PIXEL_MAP_BLOCK_WIDTH, sp.y + PIXEL_MAP_BLOCK_HEIGHT]
+			]
+			return el
+		})
+		// console.log(this.allObjects);
+
+	}
 
 	update() {
-		const start = new Date()
+		// const start = new Date()
 		// console.log('---update ui---');
 		this.allObjects = []
 		this.updateWindowInfo()
 		this.ocrMapName();
-		this.ocrHP();
-		this.ocrPositionOfcharacters();
+		this.ocrHP()
 		this.allObjects.push({
 			name: '我',
 			type: 1,
@@ -407,34 +390,30 @@ export class UI extends Computed {
 			],
 			block: false
 		})
+
+		this.ocrPositionHpBar();
+		// this.ocrPositionOfEquements();
+		this.processElements()
+
+
+		// console.log('---updated base ui--- 用时: ', Number(new Date()) - Number(start));
+		// if (this.debug) {
+		// 	this.print()
+		// }
+	}
+
+	updateEquements() {
+		// const start = new Date()
+		// console.log('---update ui---');
+		this.allObjects = []
+		this.updateWindowInfo()
+		this.ocrMapName();
 		this.ocrPositionOfEquements();
-		this.ocrPositionOfPets()
-		if (this.mapName.includes('牛魔')) {
-			this.ocrPositionOfMonstersNiu()
-		}
-		if (this.mapName.includes('四项')) {
-			this.ocrPositionOfMonsters1();
-		}
 
-		this.allObjects.map(el => {
-			const p = el.position
-			const sp = this.transformGamePositionToScreenPosition(p)
-			el.positionScreen = [
-				[sp.x, sp.y],
-				[sp.x + PIXEL_MAP_BLOCK_WIDTH, sp.y + PIXEL_MAP_BLOCK_HEIGHT]
-			]
-			return el
-		})
-
-
-		console.log('---updated ui--- 用时: ', Number(new Date()) - Number(start));
-		if (this.debug) {
-			this.print()
-		}
+		// console.log('---updated equements ui--- 用时: ', Number(new Date()) - Number(start));
 	}
 
 	print() {
-
 		// TURING.Display_Show(`我,${this.characterBlockPositionInScreen.x},${this.characterBlockPositionInScreen.y
 		// 	},${PIXEL_MAP_BLOCK_WIDTH},${PIXEL_MAP_BLOCK_HEIGHT}`)
 		const str = this.allObjects.map(el => {
@@ -442,12 +421,39 @@ export class UI extends Computed {
 				el.positionScreen[0][0],
 				el.positionScreen[0][1]
 			]
-			if (el.type === 3 || el.type === 2 || el.type === 1) {
+			if (
+				el.type === 3 ||
+				el.type === 2 || el.type === 1) {
 				return `${el.name},${r[0]},${r[1] - PIXEL_MAP_BLOCK_HEIGHT * 2
 					},${PIXEL_MAP_BLOCK_WIDTH},${PIXEL_MAP_BLOCK_HEIGHT * 3}`
 			}
 			return `${el.name},${r[0]},${r[1]},${PIXEL_MAP_BLOCK_WIDTH},${PIXEL_MAP_BLOCK_HEIGHT}`
 		}).join('|')
 		TURING.Display_Show(str)
+	}
+
+	ocrPositionHpBar() {
+		this.loadRegionFromScreen(this.regionGame);
+
+		if (this.mapName.includes('盟')) {
+			TURING.Filter_ChannelLayer(0)
+		} else {
+			TURING.Filter_Posterization(2)
+		}
+		TURING.Filter_Binaryzation("0000FF|FFFFFF|FF0000")
+		TURING.Incise_ConnectedArea(true, "5-30", "1-12", 1)
+		TURING.Lib_Use(3)
+		const res = TURING.OCR(100, 1);
+		const objects = this.positionName(
+			res,
+			0,
+			(x: number, y: number, text: string) => {
+				return {
+					x,
+					y: y,
+				};
+			}
+		);
+		this.allObjects = this.allObjects.concat(objects);
 	}
 }

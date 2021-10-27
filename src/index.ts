@@ -10,7 +10,7 @@ iohook.on('keypress', (msg) => {
 })
 
 iohook.start()
-pannel.start()
+pannel.work()
 
 
 
