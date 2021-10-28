@@ -16,9 +16,10 @@ export default class Computed {
 
 	// 是否三点一线
 	static threePointsInOneLine(p1: MirPosition, p2: MirPosition, p3: MirPosition): boolean {
-		return (p1.x === p2.x && p2.x === p3.x) ||
-			(p1.y === p2.y && p2.y === p3.y) ||
-			((p2.x - p1.x === p2.y - p1.y) && (p3.x - p2.x === p3.y - p2.y))
+		// return (p1.x === p2.x && p2.x === p3.x) ||
+		// 	(p1.y === p2.y && p2.y === p3.y) ||
+		// 	(p3.x - p2.x === p2.x - p1.x) && (p3.y - p2.y === p2.y - p1.y)
+		return (p1.y - p2.y) / (p1.x - p2.x) === (p1.y - p3.y) / (p1.x - p3.x)
 	}
 
 	static sleep(time = 300) {
