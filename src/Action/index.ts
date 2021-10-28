@@ -25,7 +25,10 @@ export function findMoveClickPositionInScreen(
 	for (let x = 2; x < maxInRow; x++) {
 		for (let y = 2; y < maxInColumn; y++) {
 			const bx = cx + x * dx, by = cy + y * dy
-			if (map.tmpBinary[bx][by] === 0) {
+			if (
+				map.canPositionLeftClick({ x: bx, y: by })
+				// map.tmpBinary[by][bx] === 0
+			) {
 				line.push({
 					x: bx,
 					y: by
@@ -33,6 +36,7 @@ export function findMoveClickPositionInScreen(
 			} else {
 				line = []
 			}
+
 			if (line.length >= 3) {
 				const position = line[1]
 				const rect = character.postionRectInScreen(position)
@@ -145,9 +149,6 @@ export function yinshen(delay = 350) {
 
 // 毒一下怪物
 export function poisonMonster(monster: MirElement, delay = 150) {
-
-	console.log(monster.positionScreen);
-
 	const positionInScreen = {
 		x: (monster.positionScreen[0][0] + monster.positionScreen[1][0]) / 2,
 		y: (monster.positionScreen[0][1]) - 2 * PIXEL_MAP_BLOCK_HEIGHT + 19

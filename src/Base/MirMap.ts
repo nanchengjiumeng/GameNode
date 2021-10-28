@@ -115,4 +115,15 @@ export default class MirMap {
 		}
 		return els
 	}
+
+	canPositionLeftClick(position: MirPosition) {
+		const { y, x } = position
+		const el = this.els.find((el) => {
+			const ely = el.position.y
+			const elx = el.position.x
+			return el.block && (y === ely + 2 || y === ely + 1 || y === ely) && x === elx
+		})
+		return !el;
+
+	}
 }

@@ -71,7 +71,7 @@ export class UI extends Computed {
 		TURING.Lib_Add(3);
 		TURING.Lib_Create("宋体", 9, "白"); // 白虎
 		TURING.Lib_Add(5);
-		TURING.Lib_Create("宋体", 9, "牛魔大厅四项法阵盟重城1234567890:")
+		TURING.Lib_Create("宋体", 9, "幽灵地堡一二三层牛魔大厅四项法阵盟重城1234567890:")
 		TURING.Lib_Add(6)
 
 		this.findHandle()

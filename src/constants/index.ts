@@ -30,6 +30,7 @@ const COLOR_TEXT_MONSTER_NAME_3 = "fffff";
 // 装备
 const COLOR_EQUE_NAME_SZ = 'DEC663' // 圣战套
 const COLOR_EQUE_NAME_LT = '8CEFF7' // 42衣服，尊者套
+const COLOR_EQUE_NAME_42 = '00FFFF'
 const COLOR_EQUE_NAME_QHLT = 'FF00FF' // 强化雷霆
 const COLOR_EQUE_NAME_TL = '00FF00' // 屠龙
 const COLOR_EQUE_NAME_ZS = 'FFAADD' // 战神套
@@ -38,7 +39,7 @@ const COLOR_EQUE_NAME_BL = '0000FF'
 
 export const COLOR_EQUE = [
 	COLOR_EQUE_NAME_SZ, COLOR_EQUE_NAME_LT, COLOR_EQUE_NAME_QHLT, COLOR_EQUE_NAME_TL,
-	COLOR_EQUE_NAME_ZS, COLOR_EQUE_NAME_HL, 'FFFFFF'
+	COLOR_EQUE_NAME_ZS, COLOR_EQUE_NAME_HL, COLOR_EQUE_NAME_42
 ].join('|')
 
 // 人物
@@ -101,6 +102,27 @@ export const MAP_LIST: MAP_HD[] = [
 			[342, 337, 344, 338],
 			[305, 317, 340, 321]
 		]
+	},
+	{
+		name: '幽灵地堡一层',
+		hd: true,
+		path: 'WM2020/Map/103a.map',
+		safe: [],
+		block: []
+	},
+	{
+		name: '幽灵地堡二层',
+		hd: true,
+		path: 'WM2020/Map/103c.map',
+		safe: [],
+		block: []
+	},
+	{
+		name: '幽灵地堡三层',
+		hd: true,
+		path: 'WM2020/Map/103d.map',
+		safe: [],
+		block: []
 	},
 	{
 		name: "四项法阵",

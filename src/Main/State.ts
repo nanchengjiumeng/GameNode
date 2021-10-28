@@ -166,8 +166,6 @@ export class STATEMACHINE {
 		logger.primary(`短距离位移中...`)
 		let startPosition = this.character.element.position
 		try {
-			console.log(this.map.roadPath);
-
 			while (this.map.roadPath.length > 0) {
 				const long = []
 				let run = false
@@ -230,10 +228,10 @@ export class STATEMACHINE {
 					this.character.recallBaiHu(150)
 					await Computed.sleep(150)
 				}
-				// if (baiHu.length === 1) {
-				// 	this.character.recallBaiHu()
-				// 	await Computed.sleep(150)
-				// }
+				if (baiHu.length === 1) {
+					this.character.recallBaiHu()
+					await Computed.sleep(150)
+				}
 
 				this.character.yinshen()
 				await Computed.sleep(100)
