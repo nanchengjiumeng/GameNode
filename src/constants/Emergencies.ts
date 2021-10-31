@@ -1,0 +1,6 @@
+export const MAP_ERROR_1 = '地图文件加载失败'
+export const MAP_ERROR_2 = '进入未知地图'
+export const PACKAGET_FILL = '背包满了'
+export const PACKAGET_NOT_FILL = '背包没满'
+export const WINDOW_DEATH = '死亡回城'
+export const OK = 'ok'

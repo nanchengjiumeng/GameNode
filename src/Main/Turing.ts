@@ -1,7 +1,15 @@
-import { Turing } from "ts-turing/types/turing"
+import { MIR_PATH } from "../Constants/index";
+import path from "path";
+import { UI, TURING as Tur } from "../UI/UI"
 
-const { createTuring, createFyl } = require('ts-turing')
-export const TURING: Turing = createTuring()
+const { createFyl } = require('ts-turing')
+
+export const ui: UI = new UI(false)
+
+ui.bindHandle()
+
+
+export const TURING = Tur
 
 interface Fyl {
 	LeftClick: (count?: number) => void,
@@ -13,4 +21,4 @@ interface Fyl {
 }
 
 
-export const fyl = createFyl() as Fyl
+export const fyl = createFyl(path.join(MIR_PATH, 'rushb/dll/msdk.dll')) as Fyl

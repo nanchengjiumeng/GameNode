@@ -4,6 +4,7 @@ import Computed from "../UI/Computed";
 import Pathfinding from "pathfinding";
 import path from "path";
 import { logger } from "../Main/logger";
+import { MAP_ERROR_1, MAP_ERROR_2 } from "../Constants/Emergencies";
 
 export default class MirMap {
 	public file!: MirMapFile
@@ -18,18 +19,26 @@ export default class MirMap {
 	}
 
 	updateMapName(mapName: string) {
-
-		if (mapName !== this.name) {
-			logger.error(`地图切换:${mapName}<-${this.name} `);
-			this.name = mapName
-			const map = this.mapList.find(item => item.name.includes(mapName))
-			if (map) {
-				this.file = new MirMapFile(path.join(MIR_PATH, map.path), map.hd)
-				if (this.file.error) {
-					throw new EvalError("地图文件加载失败!")
+		try {
+			if (mapName !== this.name) {
+				logger.error(`地图切换:${mapName}<-${this.name} `);
+				this.name = mapName
+				const map = this.mapList.find(item => item.name.indexOf(mapName) === 0)
+				if (map) {
+					this.file = new MirMapFile(path.join(MIR_PATH, map.path), map.hd)
+					if (this.file.error) {
+						throw new EvalError(MAP_ERROR_1)
+					}
+					this.mapInfo = map
+				} else {
+					throw new EvalError(MAP_ERROR_2)
 				}
-				this.mapInfo = map
 			}
+		} catch (e) {
+			process.send({
+				type: 'error',
+				msg: e.message
+			})
 		}
 	}
 

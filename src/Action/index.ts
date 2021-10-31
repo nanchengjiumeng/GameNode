@@ -7,12 +7,22 @@ import {
 import Character from "../Base/Charater";
 import { TURING, fyl } from '../Main/Turing'
 import { animate } from "popmotion"
+import Computed from "../UI/Computed";
+
+// 游戏坐标转屏幕坐标
+export function transformMirPosition2UIPosition(character: Character, mp: MirPosition) {
+	const rect = character.postionRectInScreen(mp)
+	return {
+		x: (rect[0][0] + rect[1][0]) / 2,
+		y: rect[0][1] + 8
+	}
+}
 
 // 寻找一个能够点击的坐标
 export function findMoveClickPositionInScreen(
 	map: MirMap,
 	character: Character,
-	p: MirPosition
+	p: MirPosition,
 ): MirPosition | undefined {
 	const cx = character.element.position.x,
 		cy = character.element.position.y
@@ -49,7 +59,7 @@ export function findMoveClickPositionInScreen(
 	}
 }
 
-/** 鼠标移动到游戏坐标 */
+/** 鼠标移动到屏幕坐标 */
 export function curveMove(to: UIPosition) {
 	const cur = TURING.KM_GetCursorPos().split(',').map(Number)
 
@@ -88,20 +98,22 @@ export function timestamp() {
 	return Number(new Date())
 }
 
-const cMoveMouse =
+export const cMoveMouse =
 	(dost: (postion: UIPosition) => void) =>
-		(target: UIPosition, duration = 100) => {
-			// const start = timestamp()
+		(target: UIPosition) => {
+			let start = timestamp()
 			let cur = TURING.KM_GetCursorPos().split(',').map(Number)
 			let origin = {
 				x: cur[0],
 				y: cur[1]
 			}
+			const d = Computed.distance(origin, target) * 1.2
+
 			return new Promise((resolve) => {
 				animate({
 					from: origin,
 					to: target,
-					duration,
+					duration: d,
 					onUpdate: latest => {
 						dost(latest)
 					},
@@ -117,6 +129,11 @@ export const moveMouse = cMoveMouse(({ x, y }) => {
 	fyl.MoveTo2(x, y)
 })
 
+
+export const moveMouseThenLeftClick = async ({ x, y }, time = 500) => {
+	await moveMouse({ x, y })
+	fyl.LeftClick()
+}
 
 /** 移动一步 */
 export async function moveStep(map: MirMap, character: Character, position: MirPosition, run: boolean) {
@@ -151,7 +168,7 @@ export function yinshen(delay = 350) {
 export function poisonMonster(monster: MirElement, delay = 150) {
 	const positionInScreen = {
 		x: (monster.positionScreen[0][0] + monster.positionScreen[1][0]) / 2,
-		y: (monster.positionScreen[0][1]) - 2 * PIXEL_MAP_BLOCK_HEIGHT + 19
+		y: (monster.positionScreen[0][1]) - 2 * PIXEL_MAP_BLOCK_HEIGHT + 28
 	}
 	curveMove(positionInScreen)
 	TURING.KM_Delay(delay)

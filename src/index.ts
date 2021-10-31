@@ -1,15 +1,15 @@
 import Pannel from "./Base/Pannel";
-import iohook from 'iohook'
+// import iohook from 'iohook'
 
 const pannel = new Pannel()
 
-iohook.on('keypress', (msg) => {
-	if (msg.keychar === 27) {
-		pannel.stop()
-	}
-})
+// iohook.on('keypress', (msg) => {
+// 	if (msg.keychar === 27) {
+// 		pannel.stop()
+// 	}
+// })
 
-iohook.start()
+// iohook.start()
 pannel.work()
 
 

@@ -1,5 +1,6 @@
 
-export const MIR_PATH = 'D:/完美火龙202109'
+const execPath = process.execPath
+export const MIR_PATH = (execPath.includes('node.exe')) ? 'D:/完美火龙202109' : process.execPath.replace('GameNodeTry.exe', '')
 
 export const MapWorkerRunnerStopReason = [
 	{ reason: 200, text: '正常结束' },
@@ -71,16 +72,19 @@ export const PIXEL_MAP_BLOCK_COLUMN_NUMBER = 22;
 
 // center = (15, 11)
 
-export const FILE_PATH_FONT_LIB_SONG = "electron/song.lib";
-export const FILE_PATH_FONT_LIB_HP = "electron/hp.lib";
-export const FILE_PATH_FONT_LIB_BAR = "electron/bar.lib";
-export const FILE_PATH_FONT_LIB_SXFZ = "electron/sxfz.lib"
-export const FILE_PATH_FONT_LIB = "electron/font.lib";
-export const FILE_PATH_MON_LIB = "electron/mon.lib";
+export const FILE_PATH_FONT_LIB_SONG = "rushb/song.lib";
+export const FILE_PATH_FONT_LIB_HP = "rushb/hp.lib";
+export const FILE_PATH_FONT_LIB_BAR = "rushb/bar.lib";
+export const FILE_PATH_FONT_LIB_SXFZ = "rushb/sxfz.lib"
+export const FILE_PATH_FONT_LIB = "rushb/font.lib";
+export const FILE_PATH_MON_LIB = "rushb/mon.lib";
 export const FILE_PATH_MAP_3 = "WM2020/Map/3.map";
 
 export const FILE_PATH_MAP_A1 = "WM2020/Map/103a.map";
 export const FILE_PATH_MAP_A2 = "WM2020/Map/103c.map";
+
+export const BMP_PACKAGE_COIN = 'rushb/bmp/package_coin.bmp'
+export const BMP_PACKAGE_LAST2 = 'rushb/bmp/package_last2.bmp'
 
 interface NPC {
 	name: string;
@@ -148,6 +152,13 @@ export const MAP_LIST: MAP_HD[] = [
 ]
 
 export const NPC_LIST: NPC[] = [
+	{
+		name: '装备回收',
+		position: {
+			x: 319,
+			y: 328
+		}
+	},
 	{
 		name: "镇远镖局",
 		position: {

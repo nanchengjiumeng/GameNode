@@ -1,10 +1,12 @@
-import { moveStep } from "../Action";
+import { moveMouseThenLeftClick, moveStep, transformMirPosition2UIPosition } from "../Action/index";
 import Character from "../Base/Charater";
 import MirMap from "../Base/MirMap";
 import Computed from "../UI/Computed";
 import { createMachine, interpret, Interpreter } from "xstate";
 import { logger } from "./logger";
 import { requestNextFrame } from "../Workers/main";
+import { NPC_LIST, PIXEL_MAP_BLOCK_HEIGHT } from "../Constants";
+import { ui } from "./Turing";
 
 // 1. move 移动
 // 2. attack 攻击
@@ -33,7 +35,9 @@ export class STATEMACHINE {
 	public equipTarget!: MirPosition;
 	distanceAttackMonster1: number
 	previousServiceType: string[] = []
+	mapTarget: string
 	start = false
+	justRun = false
 	__next: () => void
 	constructor(
 		public map: MirMap,
@@ -69,19 +73,26 @@ export class STATEMACHINE {
 						HuiShou: STATE_RECAIM
 					}
 				},
-				[STATE_RECAIM]: {},
+				[STATE_RECAIM]: {
+					on: {
+						[STATE_MOVE]: STATE_MOVE,
+						[STATE_SHORT_MOVE]: STATE_SHORT_MOVE
+					}
+				},
 				[STATE_MOVE]: {
 					on: {
 						[STATE_ATTACK]: STATE_ATTACK,
 						[STATE_PICK_UP]: STATE_PICK_UP,
 						[STATE_FIND_MONSTER]: STATE_FIND_MONSTER,
-						[STATE_FIND_TARGET]: STATE_FIND_TARGET
+						[STATE_FIND_TARGET]: STATE_FIND_TARGET,
+						[STATE_RECAIM]: STATE_RECAIM
 					}
 				},
 				[STATE_SHORT_MOVE]: {
 					on: {
 						[STATE_ATTACK]: STATE_ATTACK,
-						[STATE_PICK_UP]: STATE_PICK_UP
+						[STATE_PICK_UP]: STATE_PICK_UP,
+						[STATE_RECAIM]: STATE_RECAIM
 					}
 				},
 				[STATE_ATTACK]: {
@@ -125,6 +136,9 @@ export class STATEMACHINE {
 			const value = state.value
 			await requestNextFrame()
 			switch (value) {
+				case STATE_RECAIM:
+					this.recaim()
+					break
 				case STATE_FIND_MAP:
 					this.findMap()
 					break;
@@ -159,6 +173,8 @@ export class STATEMACHINE {
 	}
 
 	findMap() {
+		// 如果已经到达地图, 则直接结束
+		if (this.map.name.includes(this.mapTarget)) process.send({ type: 'success' })
 
 	}
 
@@ -195,7 +211,6 @@ export class STATEMACHINE {
 		logger.primary(`捡起物品中...${this.previousServiceType}`)
 		const eques = this.map.findAllMirElement(this.character.element.position, 4, this.distancePickUp)
 		if (eques.length === 0) {
-			console.log(this.previousServiceType);
 			const t = this.previousServiceType.pop()
 			return this.service.send({ type: t }) // 返回上一个状态
 		}
@@ -285,7 +300,8 @@ export class STATEMACHINE {
 				}
 				const target = long[long.length - 1]
 				logger.primary(`移动(${run ? '跑' : '走'})到坐标:${JSON.stringify(target)}`)
-				await moveStep(this.map, this.character, target, run)
+				await moveStep(this.map, this.character, target, run || this.justRun)
+				this.justRun = false
 			} catch (e) {
 				logger.error('移动失败！')
 			}
@@ -334,6 +350,25 @@ export class STATEMACHINE {
 		} else {
 			this.service.send({ type: this.previousServiceType.pop() })
 		}
+	}
+
+	async recaim() {
+		const charactorPosition = this.character.element.position
+		const npc = NPC_LIST.find(n => n.name.includes('装备回收'))
+		if (Computed.distance(npc.position, charactorPosition) > 5) {
+			this.map.lpa(this.character.element.position, npc.position)
+			this.previousServiceType.push(STATE_RECAIM)
+			this.justRun = true
+			this.service.send({ type: STATE_MOVE }) // 走到怪物指定距离以内
+		} else {
+			// 点击
+			const p = transformMirPosition2UIPosition(this.character, npc.position)
+			await moveMouseThenLeftClick({ x: p.x, y: p.y - PIXEL_MAP_BLOCK_HEIGHT * 1.5 })
+			await Computed.sleep(2000)
+			const button = ui.detectHuishouButton()
+			await moveMouseThenLeftClick(button)
+		}
+
 	}
 
 }

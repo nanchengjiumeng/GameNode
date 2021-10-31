@@ -7,6 +7,8 @@ export default class Character {
 	yinshenPosition: MirPosition | undefined
 	yinshenTimestamp: number = 0
 	yinshenCD = 10 * 1000
+	poisonCD = 8 * 1000
+	posisonTimestamp: number = 0
 	setElement(el: MirElement) {
 		this.element = el
 	}
@@ -30,7 +32,11 @@ export default class Character {
 	}
 
 	poisonMonster(monster: MirElement) {
-		poisonMonster(monster)
+		const timestamp = this.timestamp()
+		if (timestamp - this.posisonTimestamp > this.poisonCD) {
+			poisonMonster(monster)
+			this.posisonTimestamp = timestamp
+		}
 	}
 
 	recallBaiHu(delay?: number) {

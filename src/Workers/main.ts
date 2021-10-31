@@ -10,19 +10,24 @@ import { STATEMACHINE } from '../Main/State'
 const map = new MirMap()
 const character = new Character();
 
-process.once('message', async ({ type }) => {
+process.once('message', async ({ type, mapName }) => {
+	console.log(type);
 	await requestNextFrame()
+	console.log(2);
+
 	const machine = new STATEMACHINE(map, character)
 	machine.next()
+
 	if (type === 'GuaJi') {
 		machine.service.send({ type })
 	}
-	// if (type === 'HuiShou') {
-	// 	machine.service.send(type)
-	// }
-	// if (type === 'XiaDiTu') {
-	// 	machine.service.send(type)
-	// }
+	if (type === 'HuiShou') {
+		machine.service.send({ type })
+	}
+	if (type === 'XiaDiTu') {
+		machine.mapTarget = mapName
+		machine.service.send(type)
+	}
 })
 
 

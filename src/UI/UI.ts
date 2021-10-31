@@ -1,10 +1,10 @@
 import Computed from "./Computed"
 import * as path from 'path'
-const { createTuring } = require('ts-turing')
 
-const TURING = createTuring()
 
 import {
+	BMP_PACKAGE_COIN,
+	BMP_PACKAGE_LAST2,
 	COLOR_EQUE,
 	FILE_PATH_FONT_LIB_BAR,
 	FILE_PATH_FONT_LIB_HP,
@@ -17,7 +17,11 @@ import {
 	PIXEL_MAP_BLOCK_START_Y,
 	PIXEL_MAP_BLOCK_WIDTH,
 } from "../Constants/index";
+import { Turing } from "ts-turing/types/turing";
+import { OK, PACKAGET_FILL, PACKAGET_NOT_FILL, WINDOW_DEATH } from "../Constants/Emergencies";
+const { createTuring } = require('ts-turing')
 
+export const TURING: Turing = createTuring(path.join(MIR_PATH, 'rushb/dll/3.0.7/TURING.dll'))
 export class UI extends Computed {
 	handleList: number[] = [];
 	handle!: number;
@@ -71,7 +75,7 @@ export class UI extends Computed {
 		TURING.Lib_Add(3);
 		TURING.Lib_Create("宋体", 9, "白"); // 白虎
 		TURING.Lib_Add(5);
-		TURING.Lib_Create("宋体", 9, "幽灵地堡一二三层牛魔大厅四项法阵盟重城1234567890:")
+		TURING.Lib_Create("宋体", 9, "比奇省幽灵地堡一二三层牛魔大厅四项法阵盟重城1234567890:")
 		TURING.Lib_Add(6)
 
 		this.findHandle()
@@ -186,6 +190,11 @@ export class UI extends Computed {
 		const text = sp.slice(0, 1)[0].split("");
 		const list = sp.slice(1).map((s: any) => UI.str2Position(s as string));
 		const pList = list.map((item, idx) => {
+			// 将DFZ转换成血条位置
+			if (text[idx] === '道' || text[idx] === '战' || text[idx] === '法') {
+				item.x = item.x - 6
+				item.y = item.y + 11
+			}
 			// 将b的转换成血条位置
 			if (text[idx] === 'b') {
 				item.x = item.x - 27
@@ -432,18 +441,27 @@ export class UI extends Computed {
 		TURING.Display_Show(str)
 	}
 
+
 	ocrPositionHpBar() {
 		this.loadRegionFromScreen(this.regionGame);
-
 		if (this.mapName.includes('盟')) {
 			TURING.Filter_ChannelLayer(0)
 		} else {
 			TURING.Filter_Posterization(2)
 		}
-		TURING.Filter_Binaryzation("0000FF|FFFFFF|FF0000")
-		TURING.Incise_ConnectedArea(true, "5-30", "1-12", 1)
 		TURING.Lib_Use(3)
-		const res = TURING.OCR(100, 1);
+		TURING.Filter_DespeckleEx(3, true, 1)
+		TURING.Draw_Backups(1, 0)
+		TURING.Filter_Binaryzation("FF0000")
+		TURING.Incise_ConnectedArea(true, "9-12", "9-12")
+		this.afterResultPositionHpBar(TURING.OCR(95, 1))
+		TURING.Draw_Recover(1, 0)
+		TURING.Filter_Binaryzation("0000FF|FFFFFF")
+		TURING.Incise_ConnectedArea(true, "5-30", "1-12")
+		this.afterResultPositionHpBar(TURING.OCR(100, 1))
+	}
+
+	afterResultPositionHpBar(res: string) {
 		const objects = this.positionName(
 			res,
 			0,
@@ -456,4 +474,69 @@ export class UI extends Computed {
 		);
 		this.allObjects = this.allObjects.concat(objects);
 	}
+
+
+	/**
+	 * 特殊场景检测
+	 */
+	detectSence() {
+		// 死亡检测
+		this.loadRegionFromScreen([[0, 0], [500, 500]])
+		TURING.Filter_Binaryzation("44F5F2")
+		TURING.Incise_ScopeAisle(2, 1)
+		TURING.Lib_Use(3)
+		const retDeath = TURING.OCR(85, 1)
+		if (retDeath) {
+			const [x, y] = retDeath.split('|')[1].split(',').map(Number)
+			return {
+				message: WINDOW_DEATH,
+				screenPosition: {
+					x: x + this.windowSize[0][0] + 20,
+					y: y + this.windowSize[0][1] + 29
+				}
+			}
+		}
+
+
+
+		// 装备满包检测
+		const ret = TURING.FindImageExS(
+			0, 0, 500, 500,
+			// this.windowSize[0][0], this.windowSize[0][1], this.windowSize[1][0], this.windowSize[1][1],
+			`${path.join(this.mir, BMP_PACKAGE_COIN)}|${path.join(this.mir, BMP_PACKAGE_LAST2)}`
+			, .95)
+		const retArr = ret.split('|').map(str => str.split(',').map(Number)).filter((arr) => {
+			return arr[0] !== -1
+		})
+		if (retArr.length === 2) {
+			return { message: PACKAGET_FILL }
+		}
+
+		if (retArr.length === 1) {
+			return { message: PACKAGET_NOT_FILL }
+		}
+
+		return {
+			message: OK
+		}
+	}
+
+	detectHuishouButton() {
+		// 回收检测
+		this.updateWindowInfo()
+		this.loadRegionFromScreen([[0, 0], [500, 500]])
+		TURING.Filter_Binaryzation("44F5F2")
+		TURING.Incise_ScopeAisle(2, 1)
+		TURING.Lib_Use(3)
+		const retHui = TURING.OCR(85, 1)
+		if (retHui) {
+			const [x, y] = retHui.split('|')[1].split(',').map(Number)
+			return {
+				x: x + this.windowSize[0][0] + 20,
+				y: y + this.windowSize[0][1] + 29
+
+			}
+		}
+	}
+
 }
