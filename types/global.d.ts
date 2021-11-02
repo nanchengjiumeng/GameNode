@@ -16,3 +16,5 @@ declare interface WorkerRunner<ReturnTYpe> {
 	stop: () => void
 	__runner: Promise<WorkerRunnerReturn<ReturnTYpe>>
 }
+
+declare interface MainProcessMessage { type: string, msg?: string }

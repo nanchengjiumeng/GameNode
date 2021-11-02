@@ -480,6 +480,12 @@ export class UI extends Computed {
 	 * 特殊场景检测
 	 */
 	detectSence() {
+		const result: UIDdataSence = {
+			death: false,
+			packageOpend: false,
+			packageFilled: false,
+			reliveButtonPosition: { x: -1, y: -1 },
+		}
 		// 死亡检测
 		this.loadRegionFromScreen([[0, 0], [500, 500]])
 		TURING.Filter_Binaryzation("44F5F2")
@@ -488,12 +494,10 @@ export class UI extends Computed {
 		const retDeath = TURING.OCR(85, 1)
 		if (retDeath) {
 			const [x, y] = retDeath.split('|')[1].split(',').map(Number)
-			return {
-				message: WINDOW_DEATH,
-				screenPosition: {
-					x: x + this.windowSize[0][0] + 20,
-					y: y + this.windowSize[0][1] + 29
-				}
+			result.death = true
+			result.reliveButtonPosition = {
+				x: x + this.windowSize[0][0] + 20,
+				y: y + this.windowSize[0][1] + 29
 			}
 		}
 
@@ -508,17 +512,11 @@ export class UI extends Computed {
 		const retArr = ret.split('|').map(str => str.split(',').map(Number)).filter((arr) => {
 			return arr[0] !== -1
 		})
-		if (retArr.length === 2) {
-			return { message: PACKAGET_FILL }
-		}
 
-		if (retArr.length === 1) {
-			return { message: PACKAGET_NOT_FILL }
-		}
+		result.packageOpend = retArr.length > 0
+		result.packageFilled = retArr.length === 2
 
-		return {
-			message: OK
-		}
+		return result
 	}
 
 	detectHuishouButton() {

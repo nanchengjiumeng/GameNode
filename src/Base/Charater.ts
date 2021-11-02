@@ -1,4 +1,4 @@
-import { baihu, poisonMonster, yinshen } from "../Action/index"
+import { baihu, F9, poisonMonster, yinshen } from "../Action/index"
 import { PIXEL_MAP_BLOCK_HEIGHT, PIXEL_MAP_BLOCK_WIDTH } from "../Constants/index"
 
 export default class Character {
@@ -9,6 +9,13 @@ export default class Character {
 	yinshenCD = 10 * 1000
 	poisonCD = 8 * 1000
 	posisonTimestamp: number = 0
+
+	packageOpened = false
+	packageFill = false
+
+	death = false
+	relivePosition!: UIPosition
+
 	setElement(el: MirElement) {
 		this.element = el
 	}
@@ -59,4 +66,7 @@ export default class Character {
 		}
 	}
 
+	checkPackage() {
+		F9()
+	}
 }

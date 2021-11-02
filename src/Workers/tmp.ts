@@ -14,8 +14,5 @@ ui.bindHandle()
 while (true) {
 	ui.updateWindowInfo()
 	const r = ui.detectSence()
-	if (r.message !== OK) {
-		process.send(r)
-	}
+	process.send(r)
 }
-

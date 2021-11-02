@@ -11,10 +11,7 @@ const map = new MirMap()
 const character = new Character();
 
 process.once('message', async ({ type, mapName }) => {
-	console.log(type);
 	await requestNextFrame()
-	console.log(2);
-
 	const machine = new STATEMACHINE(map, character)
 	machine.next()
 
@@ -38,6 +35,12 @@ export function requestNextFrame(): Promise<UIData> {
 			map.updateMapElement(data.elements)
 			character.setElement(data.elements[0])
 			character.setHp(data.hp)
+			if (data.tmp) {
+				character.death = data.tmp.death
+				character.packageFill = data.tmp.packageFilled
+				character.packageOpened = data.tmp.packageOpend
+				character.relivePosition = data.tmp.reliveButtonPosition
+			}
 			resolve(data)
 		}
 		process.once('message', fn)

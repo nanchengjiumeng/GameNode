@@ -132,6 +132,7 @@ export const moveMouse = cMoveMouse(({ x, y }) => {
 
 export const moveMouseThenLeftClick = async ({ x, y }, time = 500) => {
 	await moveMouse({ x, y })
+	await Computed.sleep(time)
 	fyl.LeftClick()
 }
 
@@ -179,4 +180,13 @@ export function poisonMonster(monster: MirElement, delay = 150) {
 export function baihu(delay = 150) {
 	fyl.KeyPress(65, 3)
 	TURING.KM_Delay(delay)
+}
+
+
+export function ESC() {
+	fyl.KeyPress(27, 3)
+}
+
+export function F9() {
+	fyl.KeyPress(66, 1)
 }

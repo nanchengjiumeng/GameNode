@@ -1,4 +1,4 @@
-import { moveMouseThenLeftClick, moveStep, transformMirPosition2UIPosition } from "../Action/index";
+import { ESC, moveMouseThenLeftClick, moveStep, transformMirPosition2UIPosition } from "../Action/index";
 import Character from "../Base/Charater";
 import MirMap from "../Base/MirMap";
 import Computed from "../UI/Computed";
@@ -7,6 +7,7 @@ import { logger } from "./logger";
 import { requestNextFrame } from "../Workers/main";
 import { NPC_LIST, PIXEL_MAP_BLOCK_HEIGHT } from "../Constants";
 import { ui } from "./Turing";
+import { MAIN_EXIT_0031, MAIN_EXIT_0020, MAIN_EXIT_0010, MAIN_EXIT_0030 } from "../Constants/Emergencies";
 
 // 1. move 移动
 // 2. attack 攻击
@@ -135,6 +136,10 @@ export class STATEMACHINE {
 		this.service = interpret(state).onTransition(async (state) => {
 			const value = state.value
 			await requestNextFrame()
+			if (this.character.death) {
+				await this.relive()
+			}
+
 			switch (value) {
 				case STATE_RECAIM:
 					this.recaim()
@@ -166,6 +171,11 @@ export class STATEMACHINE {
 			}
 		})
 
+		this.checkPackage()
+		// setInterval(() => {
+
+		// }, 3000)
+
 	}
 
 	backHome() {
@@ -174,7 +184,7 @@ export class STATEMACHINE {
 
 	findMap() {
 		// 如果已经到达地图, 则直接结束
-		if (this.map.name.includes(this.mapTarget)) process.send({ type: 'success' })
+		if (this.map.name.includes(this.mapTarget)) process.send({ type: MAIN_EXIT_0010 })
 
 	}
 
@@ -359,14 +369,41 @@ export class STATEMACHINE {
 			this.map.lpa(this.character.element.position, npc.position)
 			this.previousServiceType.push(STATE_RECAIM)
 			this.justRun = true
-			this.service.send({ type: STATE_MOVE }) // 走到怪物指定距离以内
+			this.service.send({ type: STATE_MOVE }) // 走到npc附近
 		} else {
 			// 点击
 			const p = transformMirPosition2UIPosition(this.character, npc.position)
 			await moveMouseThenLeftClick({ x: p.x, y: p.y - PIXEL_MAP_BLOCK_HEIGHT * 1.5 })
 			await Computed.sleep(2000)
 			const button = ui.detectHuishouButton()
-			await moveMouseThenLeftClick(button)
+			if (button) {
+				await moveMouseThenLeftClick(button)
+				process.send({ type: MAIN_EXIT_0030 })
+			} else {
+				this.recaim() // 如果找不到按钮，就重新运行
+			}
+		}
+
+	}
+
+	async relive() {
+		if (this.character.relivePosition) {
+			const { x, y } = this.character.relivePosition
+			if (x === -1 || y == 1) return
+			await moveMouseThenLeftClick({ x, y })
+			await Computed.sleep(2000)
+			process.send({ type: MAIN_EXIT_0020 })
+		}
+	}
+
+	async checkPackage() {
+		ESC()
+		this.character.checkPackage()
+		await Computed.sleep(2000)
+		if (this.character.packageFill) {
+			this.character.checkPackage()
+			await Computed.sleep(300)
+			process.send({ type: MAIN_EXIT_0031 }) // 背包满了
 		}
 
 	}

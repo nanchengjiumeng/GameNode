@@ -6,5 +6,13 @@ declare type UIPosition = {
 declare interface UIData {
 	elements: MirElement[],
 	hp: number[],
-	mapName: string
+	mapName: string,
+	tmp?: UIDdataSence
+}
+
+declare interface UIDdataSence {
+	death: boolean
+	packageOpend: boolean
+	packageFilled: boolean
+	reliveButtonPosition: UIPosition
 }
