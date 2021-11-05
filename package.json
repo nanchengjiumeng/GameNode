@@ -8,7 +8,7 @@
     "dev": "tsc -w",
     "build": "tsc",
     "view": "node ./dist/index --inspect",
-    "pkg": "pkg package.json"
+    "pkg": "tsc && pkg package.json"
   },
   "dependencies": {
     "@types/fs-extra": "^9.0.13",

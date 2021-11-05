@@ -56,13 +56,11 @@ export default class Character {
 
 	yinshen() {
 		const timestamp = this.timestamp()
-		if (timestamp - this.yinshenTimestamp > this.yinshenCD) {
-			const isSamePlace = this.yinshenPosition && this.element.position.x === this.yinshenPosition.x && this.element.position.y === this.yinshenPosition.y
-			if (!isSamePlace) {
-				yinshen()
-				this.yinshenTimestamp = timestamp
-				this.yinshenPosition = this.element.position
-			}
+		const isSamePlace = this.yinshenPosition && this.element.position.x === this.yinshenPosition.x && this.element.position.y === this.yinshenPosition.y
+		if (timestamp - this.yinshenTimestamp > this.yinshenCD || !isSamePlace) {
+			yinshen()
+			this.yinshenTimestamp = timestamp
+			this.yinshenPosition = this.element.position
 		}
 	}
 

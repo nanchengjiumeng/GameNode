@@ -71,10 +71,7 @@ export class UI extends Computed {
 		TURING.Lib_Load(path.join(this.mir, FILE_PATH_FONT_LIB_HP));
 		TURING.Lib_Add(2);
 		TURING.Lib_Load(path.join(this.mir, FILE_PATH_FONT_LIB_BAR));
-		// TURING.Lib_Create("宋体", 9, "DFZ"); // 道士/法师/战士
 		TURING.Lib_Add(3);
-		TURING.Lib_Create("宋体", 9, "白"); // 白虎
-		TURING.Lib_Add(5);
 		TURING.Lib_Load(path.join(this.mir, FILE_PATH_FONT_LIB_MAP))
 		TURING.Lib_Add(6)
 
@@ -182,7 +179,8 @@ export class UI extends Computed {
 	positionName(
 		res: string,
 		type: 0 | 1 | 2 | 3,
-		callback: (x: number, y: number, text?: string) => MirPosition
+		callback: (x: number, y: number, text?: string) => MirPosition,
+		filter: string
 	): MirElement[] {
 		if (!res) {
 			return []
@@ -200,7 +198,7 @@ export class UI extends Computed {
 			if (text[idx] === 'b') {
 				item.x = item.x - 27
 				item.y = item.y + 11
-				text[idx] === '血'
+				text[idx] = '血'
 			}
 
 			if (text[idx] === '虎') {
@@ -213,6 +211,7 @@ export class UI extends Computed {
 				item.x = item.x + 20
 				item.y = item.y - 39
 			}
+
 
 
 			const { x, y } = item;
@@ -231,30 +230,7 @@ export class UI extends Computed {
 			};
 			return ret;
 		});
-		return pList;
-	}
-
-	// 四项法阵
-	ocrPositionOfMonsters1() {
-		this.loadRegionFromScreen(this.regionGame);
-		TURING.Filter_Posterization(2)
-		TURING.Filter_Binaryzation("FFFFFF")
-		TURING.Filter_DespeckleEx(5, true, 1)
-		TURING.Incise_ScopeAisle(2, 1, "10-24", "10-24")
-		TURING.Lib_Use(5)
-		const res = TURING.OCR(85, 1);
-
-		const objects = this.positionName(
-			res,
-			3,
-			(x: number, y: number) => {
-				return {
-					x,
-					y: y - 1,
-				};
-			}
-		);
-		this.allObjects = this.allObjects.concat(objects);
+		return pList.filter((item) => !filter.includes(item.name));
 	}
 
 	// 通过文字定位装备位置
@@ -459,10 +435,10 @@ export class UI extends Computed {
 		TURING.Draw_Recover(1, 0)
 		TURING.Filter_Binaryzation("0000FF|FFFFFF")
 		TURING.Incise_ConnectedArea(true, "5-30", "1-12")
-		this.afterResultPositionHpBar(TURING.OCR(100, 1))
+		this.afterResultPositionHpBar(TURING.OCR(100, 1), '白')
 	}
 
-	afterResultPositionHpBar(res: string) {
+	afterResultPositionHpBar(res: string, filter: string = '') {
 		const objects = this.positionName(
 			res,
 			0,
@@ -471,7 +447,8 @@ export class UI extends Computed {
 					x,
 					y: y,
 				};
-			}
+			},
+			filter
 		);
 		this.allObjects = this.allObjects.concat(objects);
 	}

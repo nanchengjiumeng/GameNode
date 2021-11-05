@@ -25,6 +25,8 @@ function createBaseProcess(signal: AbortSignal) {
 
 	ui.addListener('message', (data: UIData) => {
 		data.tmp = tmpHistory[tmpHistory.length - 1]
+		const eques = equeHistory[equeHistory.length - 1] || []
+		data.elements = [...data.elements, ...eques]
 		main.send(data)
 	})
 
