@@ -201,6 +201,12 @@ export class UI extends Computed {
 				text[idx] = '血'
 			}
 
+			if (text[idx] === ')') {
+				item.x = item.x - 20
+				item.y = item.y - 1
+				text[idx] = '白'
+			}
+
 			if (text[idx] === '虎') {
 				item.x = item.x - 11
 				item.y = item.y
@@ -435,7 +441,7 @@ export class UI extends Computed {
 		TURING.Draw_Recover(1, 0)
 		TURING.Filter_Binaryzation("0000FF|FFFFFF")
 		TURING.Incise_ConnectedArea(true, "5-30", "1-12")
-		this.afterResultPositionHpBar(TURING.OCR(100, 1), '白')
+		this.afterResultPositionHpBar(TURING.OCR(100, 1), '白)')
 	}
 
 	afterResultPositionHpBar(res: string, filter: string = '') {

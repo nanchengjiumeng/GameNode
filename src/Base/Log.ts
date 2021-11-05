@@ -9,6 +9,8 @@ export default class Log {
 	}
 
 	primary(text: string, record = false) {
+		if (text === this.list[this.list.length - 1]) return
+		this.list.push(text)
 		if (record) this.list.push(text)
 		this.console.log(chalk.blue(text))
 	}
