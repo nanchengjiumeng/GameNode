@@ -44,7 +44,7 @@ export class STATEMACHINE {
 		public map: MirMap,
 		public character: Character,
 		public distanceMonster = 20, // 如果范围11内有怪物开始找怪
-		public distanceAttack = 6,  // 如果怪物进入范围8以内进入攻击模式
+		public distanceAttack = 5,  // 如果怪物进入范围8以内进入攻击模式
 		public distanceAttackMonster = 2,
 		public distancePickUp = 10,  // 捡起当前人物指定范围内的装备
 		public distanceBaiHu = 6, // 战斗时白虎最远距离
@@ -267,7 +267,7 @@ export class STATEMACHINE {
 			}
 			if (monster.distance > this.distanceAttack) {
 				logger.primary(`攻击中...走近点`)
-				this.monsterTarget = monster.position
+				this.monsterTarget = monster.position	
 				this.map.lpa(this.character.element.position, this.monsterTarget, true, this.distanceAttackMonster)
 				this.previousServiceType.push(STATE_ATTACK)
 				return this.service.send({ type: STATE_MOVE }) // 走到怪物指定距离以内
@@ -329,6 +329,11 @@ export class STATEMACHINE {
 		const monsters = this.map.findAllMirElement(this.character.element.position, 3, this.distanceMonster)
 		logger.primary(`寻路中坐标:${JSON.stringify(this.target)}, 怪物数量: ${monsters.length}, 装备数量: ${eques.length} `)
 
+		console.log(monsters);
+
+		process.exit()
+		
+
 		if (eques.length > 0) {
 			this.previousServiceType.push(STATE_FIND_TARGET)
 			return this.service.send({ type: STATE_PICK_UP }) // 捡起装备
@@ -372,7 +377,7 @@ export class STATEMACHINE {
 			this.service.send({ type: STATE_MOVE }) // 走到npc附近
 		} else {
 			// 点击
-			const p = transformMirPosition2UIPosition(this.character, npc.position)
+			const p = transformMirPosition2UIPosition(this.character, npc.position)				
 			await moveMouseThenLeftClick({ x: p.x, y: p.y - PIXEL_MAP_BLOCK_HEIGHT * 1.5 })
 			await Computed.sleep(2000)
 			const button = ui.detectHuishouButton()

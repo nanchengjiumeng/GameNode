@@ -8,6 +8,7 @@ import {
 	COLOR_EQUE,
 	FILE_PATH_FONT_LIB_BAR,
 	FILE_PATH_FONT_LIB_HP,
+	FILE_PATH_FONT_LIB_MAP,
 	FILE_PATH_FONT_LIB_SONG,
 	MIR_PATH,
 	PIXEL_MAP_BLOCK_COLUMN_NUMBER,
@@ -75,7 +76,7 @@ export class UI extends Computed {
 		TURING.Lib_Add(3);
 		TURING.Lib_Create("宋体", 9, "白"); // 白虎
 		TURING.Lib_Add(5);
-		TURING.Lib_Create("宋体", 9, "比奇省幽灵地堡一二三层牛魔大厅四项法阵盟重城1234567890:")
+		TURING.Lib_Load(path.join(this.mir, FILE_PATH_FONT_LIB_MAP))
 		TURING.Lib_Add(6)
 
 		this.findHandle()
@@ -160,6 +161,7 @@ export class UI extends Computed {
 		TURING.Incise_RandomOrientation(0);
 		TURING.Lib_Use(6);
 		const ret = TURING.OCR(95).replace(/(O|o)/g, "0") || "";
+
 		const match = ret.match(/([^\x00-\xff]+)(\d+):(\d+)/);
 
 		if (ret && match) {

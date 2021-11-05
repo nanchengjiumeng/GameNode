@@ -46,6 +46,7 @@ export const CreateControllerForAction = (action: string) => () => {
 }
 
 export const HuiShou = CreateControllerForAction('HuiShou')
+export const Gua = CreateControllerForAction('GuaJi')
 
 export function CeShi(): AbortController {
 	const { controller: HuiShouController, main } = HuiShou()
@@ -56,4 +57,9 @@ export function CeShi(): AbortController {
 		}
 	})
 	return HuiShouController
+}
+
+export function GuaJi(): AbortController {
+	const { controller: Controller, main } = Gua()
+	return Controller
 }

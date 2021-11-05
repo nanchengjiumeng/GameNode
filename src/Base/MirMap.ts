@@ -57,7 +57,15 @@ export default class MirMap {
 				block = Boolean(this.mapInfo.block.find(b => Computed.positionInRect(el.position, b)))
 			}
 			if (block) {
-				this.tmpBinary[el.position.y][el.position.x] = 1
+				try {
+
+					this.tmpBinary[el.position.y][el.position.x] = 1
+				} catch (e) {
+					console.log(e);
+					
+					console.log(this.tmpBinary);
+
+				}
 			}
 			return {
 				...el,
@@ -103,7 +111,7 @@ export default class MirMap {
 
 	// 计算寻路坐标
 	lpa(position: MirPosition, target: MirPosition, monster = false, distance = 0) {
-		const finder = new Pathfinding.BestFirstFinder({ diagonalMovement: 4 });
+		const finder = new Pathfinding.AStarFinder({ diagonalMovement: 4 });
 		if (monster) {
 			this.tmpBinary[target.y][target.x] = 0
 		}

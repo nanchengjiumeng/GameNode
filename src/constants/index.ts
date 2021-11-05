@@ -76,6 +76,7 @@ export const FILE_PATH_FONT_LIB_SONG = "rushb/song.lib";
 export const FILE_PATH_FONT_LIB_HP = "rushb/hp.lib";
 export const FILE_PATH_FONT_LIB_BAR = "rushb/bar.lib";
 export const FILE_PATH_FONT_LIB_SXFZ = "rushb/sxfz.lib"
+export const FILE_PATH_FONT_LIB_MAP = "rushb/map.lib"
 export const FILE_PATH_FONT_LIB = "rushb/font.lib";
 export const FILE_PATH_MON_LIB = "rushb/mon.lib";
 export const FILE_PATH_MAP_3 = "WM2020/Map/3.map";
