@@ -247,6 +247,8 @@ export class STATEMACHINE {
 			const inDistance = monster.distance && (monster.distance <= this.distanceAttack && monster.distance >= this.distanceAttackMonster)
 			if (inDistance) {
 				logger.primary(`攻击中...`)
+				this.character.yinshen()
+				await Computed.sleep(100)
 				// 召唤bb 施毒术 ..
 				const baiHu = this.map.findAllMirElement(this.character.element.position, 2, this.distanceBaiHu)
 				if (baiHu.length === 0) {
@@ -258,16 +260,13 @@ export class STATEMACHINE {
 					await Computed.sleep(150)
 				}
 
-				this.character.yinshen()
-				await Computed.sleep(100)
-
 				this.character.poisonMonster(monster)
 				this.distanceAttackMonster = this.distanceAttackMonster1
 				return this.service.send({ type: STATE_ATTACK }) // 继续攻击
 			}
 			if (monster.distance > this.distanceAttack) {
 				logger.primary(`攻击中...走近点`)
-				this.monsterTarget = monster.position	
+				this.monsterTarget = monster.position
 				this.map.lpa(this.character.element.position, this.monsterTarget, true, this.distanceAttackMonster)
 				this.previousServiceType.push(STATE_ATTACK)
 				return this.service.send({ type: STATE_MOVE }) // 走到怪物指定距离以内
@@ -329,11 +328,6 @@ export class STATEMACHINE {
 		const monsters = this.map.findAllMirElement(this.character.element.position, 3, this.distanceMonster)
 		logger.primary(`寻路中坐标:${JSON.stringify(this.target)}, 怪物数量: ${monsters.length}, 装备数量: ${eques.length} `)
 
-		console.log(monsters);
-
-		process.exit()
-		
-
 		if (eques.length > 0) {
 			this.previousServiceType.push(STATE_FIND_TARGET)
 			return this.service.send({ type: STATE_PICK_UP }) // 捡起装备
@@ -377,7 +371,7 @@ export class STATEMACHINE {
 			this.service.send({ type: STATE_MOVE }) // 走到npc附近
 		} else {
 			// 点击
-			const p = transformMirPosition2UIPosition(this.character, npc.position)				
+			const p = transformMirPosition2UIPosition(this.character, npc.position)
 			await moveMouseThenLeftClick({ x: p.x, y: p.y - PIXEL_MAP_BLOCK_HEIGHT * 1.5 })
 			await Computed.sleep(2000)
 			const button = ui.detectHuishouButton()
