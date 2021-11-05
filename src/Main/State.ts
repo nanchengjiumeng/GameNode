@@ -328,12 +328,6 @@ export class STATEMACHINE {
 		const eques = this.map.findAllMirElement(this.character.element.position, 4, this.distancePickUp)
 		const monsters = this.map.findAllMirElement(this.character.element.position, 3, this.distanceMonster)
 		logger.primary(`寻路中坐标:${JSON.stringify(this.target)}, 怪物数量: ${monsters.length}, 装备数量: ${eques.length} `)
-
-		console.log(monsters);
-
-		process.exit()
-		
-
 		if (eques.length > 0) {
 			this.previousServiceType.push(STATE_FIND_TARGET)
 			return this.service.send({ type: STATE_PICK_UP }) // 捡起装备

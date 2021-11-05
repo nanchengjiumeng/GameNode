@@ -19,7 +19,6 @@ import {
 	PIXEL_MAP_BLOCK_WIDTH,
 } from "../Constants/index";
 import { Turing } from "ts-turing/types/turing";
-import { OK, PACKAGET_FILL, PACKAGET_NOT_FILL, WINDOW_DEATH } from "../Constants/Emergencies";
 const { createTuring } = require('ts-turing')
 
 export const TURING: Turing = createTuring(path.join(MIR_PATH, 'rushb/dll/3.0.7/TURING.dll'))
