@@ -53,7 +53,6 @@ export function CeShi(): AbortController {
 		if (evt.type === MAIN_EXIT_0031) {
 			HuiShouController.abort()
 			console.log(1);
-
 		}
 	})
 	return HuiShouController
