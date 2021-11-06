@@ -1,11 +1,11 @@
-import { MAP_LIST, MIR_PATH } from "../constants";
+import { MAP_LIST, MIR_PATH } from "../Constants/index";
 import MirMapFile from "../Sources/MirMapLoader";
 import Computed from "../UI/Computed";
 import Pathfinding from "pathfinding";
 import path from "path";
 import { logger } from "../Main/logger";
 import { MAP_CHANGE, MAP_ERROR_1, MAP_ERROR_2 } from "../Constants/Emergencies";
-import { dnagerGJMap } from "../constants/luxian";
+import { dnagerGJMap } from "../Constants/luxian";
 import { TURING } from "../Main/Turing";
 
 export default class MirMap {

@@ -11,3 +11,9 @@ declare interface MirElement {
 
 
 declare type Rect = [[number, number], [number, number]]
+
+declare type MirPostionThenUIPosition = {
+	label: string,
+	position: MirPosition,
+	uiPosition: UIPosition
+}

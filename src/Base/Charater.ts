@@ -11,7 +11,7 @@ export default class Character {
 	posisonTimestamp: number = 0
 
 	packageOpened = false
-	packageFill = false
+	packageFill = 0
 
 	death = false
 	relivePosition!: UIPosition

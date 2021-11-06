@@ -5,10 +5,10 @@ import Computed from "../UI/Computed";
 import { createMachine, interpret, Interpreter } from "xstate";
 import { logger } from "./logger";
 import { requestNextFrame } from "../Workers/main";
-import { NPC_LIST, PIXEL_MAP_BLOCK_HEIGHT } from "../constants";
+import { NPC_LIST, PIXEL_MAP_BLOCK_HEIGHT } from "../Constants";
 import { ui } from "./Turing";
 import {
-	MAIN_EXIT_0031, MAIN_EXIT_0020, MAIN_EXIT_0030, LOST_TARGET
+	MAIN_EXIT_0020, LOST_TARGET
 } from "../Constants/Emergencies";
 
 // 1. move 移动
@@ -186,7 +186,9 @@ export class STATEMACHINE {
 		if (this.map.name === '盟重省') {
 			const fill = await this.checkPackage()
 			console.log(fill);
+			if (fill >= 38) {
 
+			}
 			// this.previousServiceType.push(STATE_FIND_MAP)
 			// return this.service.send({ type: STATE_RECAIM })
 		}

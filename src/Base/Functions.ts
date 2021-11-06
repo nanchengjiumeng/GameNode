@@ -66,7 +66,7 @@ export function CeShi(): AbortController {
 
 export function GuaJi(): AbortController {
 	let { controller: Controller, main } = Gua()
-	main.addListener("message", ({ type }) => {
+	main.addListener("message", ({ type }: any) => {
 		if (type === LOST_TARGET || type === MAP_CHANGE) {
 			Controller.abort()
 			// return GuaJi()

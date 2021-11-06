@@ -17,7 +17,7 @@ import {
 	PIXEL_MAP_BLOCK_START_X,
 	PIXEL_MAP_BLOCK_START_Y,
 	PIXEL_MAP_BLOCK_WIDTH,
-} from "../constants/index";
+} from "../Constants/index";
 import { Turing } from "ts-turing/types/turing";
 const { createTuring } = require('ts-turing')
 
@@ -50,6 +50,8 @@ export class UI extends Computed {
 			Math.floor(PIXEL_MAP_BLOCK_COLUMN_NUMBER / 4) * 3 * PIXEL_MAP_BLOCK_HEIGHT + + PIXEL_MAP_BLOCK_HEIGHT * 3
 		]
 	]
+	//  21, 306
+	regionPackage: Rect = [[97 - 68, 189 - 59], [381 - 70, 357 - 68]]
 	pixel = [PIXEL_MAP_BLOCK_WIDTH, PIXEL_MAP_BLOCK_HEIGHT];
 	config!: Object;
 	fontLibPath!: string;
@@ -157,8 +159,8 @@ export class UI extends Computed {
 		TURING.Filter_Binaryzation("ffffff");
 		TURING.Incise_RandomOrientation(0);
 		TURING.Lib_Use(6);
-		const ret = TURING.OCR(95).replace(/(O|o)/g, "0") || "";
-
+		let ret = TURING.OCR(95)
+		ret = ret.replace(/(O|o)/g, "0") || "";
 		const match = ret.match(/([^\x00-\xff]+)(\d+):(\d+)/);
 
 		if (ret && match) {
@@ -468,7 +470,7 @@ export class UI extends Computed {
 		const result: UIDdataSence = {
 			death: false,
 			packageOpend: false,
-			packageFilled: false,
+			packageFilled: 0,
 			reliveButtonPosition: { x: -1, y: -1 },
 		}
 		// 死亡检测
@@ -497,12 +499,20 @@ export class UI extends Computed {
 		const retArr = ret.split('|').map(str => str.split(',').map(Number)).filter((arr) => {
 			return arr[0] !== -1
 		})
+
 		if (retArr[0]) {
-
+			this.loadRegionFromScreen(this.regionPackage)
+			TURING.Filter_Posterization(4)
+			TURING.Filter_Binaryzation("0-61")
+			TURING.Filter_DespeckleEx(0, true, 1)
+			TURING.Filter_InverseColor(2)
+			TURING.Incise_ConnectedArea(true, "25-35", "12-35")
+			TURING.Lib_Use(3)
+			const ret = TURING.OCR(91) || ""
+			result.packageFilled = 40 - ret.split("").filter(i => i === "空").length
 		}
-		result.packageOpend = retArr.length > 0
-		result.packageFilled = retArr.length === 2
 
+		result.packageOpend = retArr.length > 0
 		return result
 	}
 

@@ -13,6 +13,6 @@ declare interface UIData {
 declare interface UIDdataSence {
 	death: boolean
 	packageOpend: boolean
-	packageFilled: boolean
+	packageFilled: number
 	reliveButtonPosition: UIPosition
 }

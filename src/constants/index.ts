@@ -154,6 +154,14 @@ export const MAP_LIST: MAP_HD[] = [
 
 export const NPC_LIST: NPC[] = [
 	{
+		name: '幽灵地堡',
+		position: {
+			x: 318,
+			y: 414
+		}
+
+	},
+	{
 		name: '装备回收',
 		position: {
 			x: 319,

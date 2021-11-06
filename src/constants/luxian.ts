@@ -1,19 +1,22 @@
-const mengzhong = {
-	name: '盟重',
-	entry: "盟重回城石",
-	next: [
-		"四项法阵",
-		"幽灵地堡一层"
-	]
-}
+import { NPC_LIST } from "../Constants"
 
-
-
+export const LabeslPositionThenClick: MirPostionThenUIPosition[] = [
+	{
+		label: '四相法阵',
+		position: NPC_LIST.find(i => i.name === '幽灵地堡').position,
+		uiPosition: { x: 71, y: 154 }
+	},
+	{
+		label: '幽灵地堡',
+		position: NPC_LIST.find(i => i.name === '幽灵地堡').position,
+		uiPosition: { x: 201, y: 154 }
+	}
+]
 
 
 export const dnagerGJMap: GJMap[] = [
 	{
-		name: "四项法阵",
+		name: "四相法阵",
 		path: [],
 	},
 	{

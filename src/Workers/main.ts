@@ -32,8 +32,10 @@ export function requestNextFrame(): Promise<UIData> {
 			character.setHp(data.hp)
 			if (data.tmp) {
 				character.death = data.tmp.death
-				character.packageFill = data.tmp.packageFilled
 				character.packageOpened = data.tmp.packageOpend
+				if (character.packageOpened) {
+					character.packageFill = data.tmp.packageFilled
+				}
 				character.relivePosition = data.tmp.reliveButtonPosition
 			}
 			resolve(data)
