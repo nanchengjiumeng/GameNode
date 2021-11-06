@@ -107,7 +107,7 @@ export const cMoveMouse =
 				x: cur[0],
 				y: cur[1]
 			}
-			const d = Computed.distance(origin, target) * 1.2
+			const d = Computed.distance(origin, target) * 0.6
 
 			return new Promise((resolve) => {
 				animate({
@@ -126,7 +126,8 @@ export const cMoveMouse =
 		}
 
 export const moveMouse = cMoveMouse(({ x, y }) => {
-	fyl.MoveTo2(x, y)
+	// fyl.MoveTo2(x, y)
+	TURING.KM_MoveTo(x, y)
 })
 
 
@@ -160,7 +161,7 @@ export async function moveStep(map: MirMap, character: Character, position: MirP
 
 // 隐身
 export function yinshen(delay = 350) {
-	fyl.KeyPress(59, 3)
+	fyl.KeyPress(59, 1)
 	TURING.KM_Delay(delay)
 }
 
@@ -173,20 +174,22 @@ export function poisonMonster(monster: MirElement, delay = 150) {
 	}
 	curveMove(positionInScreen)
 	TURING.KM_Delay(delay)
-	fyl.KeyPress(58, 4)
+	fyl.KeyPress(58, 1)
 }
 
 // 召唤白虎
 export function baihu(delay = 150) {
-	fyl.KeyPress(65, 3)
+	fyl.KeyPress(65, 1)
 	TURING.KM_Delay(delay)
 }
 
 
-export function ESC() {
-	fyl.KeyPress(27, 3)
+export function ESC(delay = 50) {
+	fyl.KeyPress(41, 1)
+	TURING.KM_Delay(delay)
 }
 
-export function F9() {
+export function F9(delay = 50) {
 	fyl.KeyPress(66, 1)
+	TURING.KM_Delay(delay)
 }

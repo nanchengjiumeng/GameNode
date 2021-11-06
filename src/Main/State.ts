@@ -5,9 +5,11 @@ import Computed from "../UI/Computed";
 import { createMachine, interpret, Interpreter } from "xstate";
 import { logger } from "./logger";
 import { requestNextFrame } from "../Workers/main";
-import { NPC_LIST, PIXEL_MAP_BLOCK_HEIGHT } from "../Constants";
+import { NPC_LIST, PIXEL_MAP_BLOCK_HEIGHT } from "../constants";
 import { ui } from "./Turing";
-import { MAIN_EXIT_0031, MAIN_EXIT_0020, MAIN_EXIT_0010, MAIN_EXIT_0030 } from "../Constants/Emergencies";
+import {
+	MAIN_EXIT_0031, MAIN_EXIT_0020, MAIN_EXIT_0030, LOST_TARGET
+} from "../Constants/Emergencies";
 
 // 1. move 移动
 // 2. attack 攻击
@@ -69,9 +71,7 @@ export class STATEMACHINE {
 			states: {
 				idel: {
 					on: {
-						XiaDiTu: STATE_FIND_MAP,
-						GuaJi: STATE_FIND_TARGET,
-						HuiShou: STATE_RECAIM
+						GuaJi: STATE_FIND_MAP,
 					}
 				},
 				[STATE_RECAIM]: {
@@ -129,7 +129,12 @@ export class STATEMACHINE {
 						[STATE_PICK_UP]: STATE_PICK_UP,
 					}
 				},
-				[STATE_FIND_MAP]: {}
+				[STATE_FIND_MAP]: {
+					on: {
+						[STATE_FIND_MAP]: STATE_FIND_MAP,
+						[STATE_RECAIM]: STATE_RECAIM
+					}
+				}
 			}
 		})
 
@@ -170,22 +175,24 @@ export class STATEMACHINE {
 					break;
 			}
 		})
-
-		this.checkPackage()
-		// setInterval(() => {
-
-		// }, 3000)
-
 	}
 
 	backHome() {
 
 	}
 
-	findMap() {
+	async findMap() {
 		// 如果已经到达地图, 则直接结束
-		if (this.map.name.includes(this.mapTarget)) process.send({ type: MAIN_EXIT_0010 })
+		if (this.map.name === '盟重省') {
+			const fill = await this.checkPackage()
+			console.log(fill);
 
+			// this.previousServiceType.push(STATE_FIND_MAP)
+			// return this.service.send({ type: STATE_RECAIM })
+		}
+		// if () {
+
+		// }
 	}
 
 	async shortDistanceMove() {
@@ -321,10 +328,13 @@ export class STATEMACHINE {
 		if (!this.target || (this.target.x === this.character.element.position.x && this.target.y === this.character.element.position.y)) {
 			// 重置目标后，开始寻找目标
 			this.target = this.map.getAPositionSighting()
-			console.log(this.target);
-			
-		}
+			// this.target = this.map.radomAPostionSighting()
+			// console.log(this.target);
 
+		}
+		if (!this.target) {
+			process.send({ type: LOST_TARGET })
+		}
 		const eques = this.map.findAllMirElement(this.character.element.position, 4, this.distancePickUp)
 		const monsters = this.map.findAllMirElement(this.character.element.position, 3, this.distanceMonster)
 		logger.primary(`寻路中坐标:${JSON.stringify(this.target)}, 怪物数量: ${monsters.length}, 装备数量: ${eques.length} `)
@@ -362,6 +372,7 @@ export class STATEMACHINE {
 	}
 
 	async recaim() {
+		logger.error(`回收中...`)
 		const charactorPosition = this.character.element.position
 		const npc = NPC_LIST.find(n => n.name.includes('装备回收'))
 		if (Computed.distance(npc.position, charactorPosition) > 5) {
@@ -376,8 +387,10 @@ export class STATEMACHINE {
 			await Computed.sleep(2000)
 			const button = ui.detectHuishouButton()
 			if (button) {
-				await moveMouseThenLeftClick(button)
-				process.send({ type: MAIN_EXIT_0030 })
+				await moveMouseThenLeftClick(button, 200)
+				await Computed.sleep(200)
+				console.log('button');
+				ESC()
 			} else {
 				this.recaim() // 如果找不到按钮，就重新运行
 			}
@@ -398,13 +411,10 @@ export class STATEMACHINE {
 	async checkPackage() {
 		ESC()
 		this.character.checkPackage()
-		await Computed.sleep(2000)
-		if (this.character.packageFill) {
-			this.character.checkPackage()
-			await Computed.sleep(300)
-			process.send({ type: MAIN_EXIT_0031 }) // 背包满了
-		}
-
+		await Computed.sleep(3000)
+		const fill = this.character.packageFill
+		ESC()
+		return fill
 	}
 
 }

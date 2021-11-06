@@ -17,7 +17,7 @@ import {
 	PIXEL_MAP_BLOCK_START_X,
 	PIXEL_MAP_BLOCK_START_Y,
 	PIXEL_MAP_BLOCK_WIDTH,
-} from "../Constants/index";
+} from "../constants/index";
 import { Turing } from "ts-turing/types/turing";
 const { createTuring } = require('ts-turing')
 
@@ -492,12 +492,14 @@ export class UI extends Computed {
 		const ret = TURING.FindImageExS(
 			0, 0, 500, 500,
 			// this.windowSize[0][0], this.windowSize[0][1], this.windowSize[1][0], this.windowSize[1][1],
-			`${path.join(this.mir, BMP_PACKAGE_COIN)}|${path.join(this.mir, BMP_PACKAGE_LAST2)}`
-			, .95)
+			`${path.join(this.mir, BMP_PACKAGE_COIN)}`, .95)
+
 		const retArr = ret.split('|').map(str => str.split(',').map(Number)).filter((arr) => {
 			return arr[0] !== -1
 		})
+		if (retArr[0]) {
 
+		}
 		result.packageOpend = retArr.length > 0
 		result.packageFilled = retArr.length === 2
 

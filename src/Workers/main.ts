@@ -20,13 +20,6 @@ process.once('message', async ({ type, mapName, params }) => {
 		machine.map.setLuXian()
 		machine.service.send({ type })
 	}
-	if (type === 'HuiShou') {
-		machine.service.send({ type })
-	}
-	if (type === 'XiaDiTu') {
-		machine.mapTarget = mapName
-		machine.service.send(type)
-	}
 })
 
 

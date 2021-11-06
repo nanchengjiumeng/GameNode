@@ -111,7 +111,7 @@ export const dnagerGJMap: GJMap[] = [
 		}
 	},
 	{
-		name: "幽灵地堡三层",
+		name: "幽灵地堡",
 		path: [
 			{ x: 91, y: 65 }, { x: 71, y: 85 }, { x: 73, y: 69 },
 			{ x: 54, y: 50 }, { x: 80, y: 24 }, { x: 21, y: 70 },

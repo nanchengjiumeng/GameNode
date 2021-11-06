@@ -2,7 +2,7 @@ import path from "path"
 import { createProccess } from "../Workers/create"
 import AbortController from 'abort-controller'
 import { AbortSignal } from 'abort-controller'
-import { MAIN_EXIT_0031 } from "../Constants/Emergencies"
+import { LOST_TARGET, MAIN_EXIT_0031, MAP_CHANGE } from "../Constants/Emergencies"
 
 function createBaseProcess(signal: AbortSignal) {
 	const main = createProccess(path.resolve(__dirname, '../Workers/main'), { signal })
@@ -49,7 +49,7 @@ export const CreateControllerForAction = (action: string, params?: any) => () =>
 
 export const HuiShou = CreateControllerForAction('HuiShou')
 export const Gua = CreateControllerForAction('GuaJi', {
-	path: '幽灵地堡一层->幽灵地堡二层'
+	path: '幽灵地堡一层->幽灵地堡二层->幽灵地堡'
 	// path: '幽灵地堡一层->幽灵地堡二层->幽灵地堡三层'
 })
 
@@ -65,6 +65,12 @@ export function CeShi(): AbortController {
 }
 
 export function GuaJi(): AbortController {
-	const { controller: Controller, main } = Gua()
+	let { controller: Controller, main } = Gua()
+	main.addListener("message", ({ type }) => {
+		if (type === LOST_TARGET || type === MAP_CHANGE) {
+			Controller.abort()
+			// return GuaJi()
+		}
+	})
 	return Controller
 }

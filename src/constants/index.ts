@@ -123,7 +123,7 @@ export const MAP_LIST: MAP_HD[] = [
 		block: []
 	},
 	{
-		name: '幽灵地堡三层',
+		name: '幽灵地堡',
 		hd: true,
 		path: 'WM2020/Map/103d.map',
 		safe: [],

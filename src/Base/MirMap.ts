@@ -4,8 +4,9 @@ import Computed from "../UI/Computed";
 import Pathfinding from "pathfinding";
 import path from "path";
 import { logger } from "../Main/logger";
-import { MAP_ERROR_1, MAP_ERROR_2 } from "../Constants/Emergencies";
+import { MAP_CHANGE, MAP_ERROR_1, MAP_ERROR_2 } from "../Constants/Emergencies";
 import { dnagerGJMap } from "../constants/luxian";
+import { TURING } from "../Main/Turing";
 
 export default class MirMap {
 	public file!: MirMapFile
@@ -17,6 +18,7 @@ export default class MirMap {
 	public roadPath: MirPosition[] = []
 	public GuaJiPath: GJMap[] = []
 	public p: string = ""
+	public changeNum = 0
 	constructor() {
 
 	}
@@ -24,9 +26,14 @@ export default class MirMap {
 	updateMapName(mapName: string) {
 		try {
 			if (mapName !== this.name) {
+				if (this.changeNum > 0) {
+					process.send({ type: MAP_CHANGE, mapName })
+					return
+				}
+				this.changeNum++
 				logger.error(`地图切换:${mapName}<-${this.name} `);
 				this.name = mapName
-				const map = this.mapList.find(item => item.name.indexOf(mapName) === 0)
+				const map = this.mapList.find(item => item.name === (mapName))
 				if (map) {
 					this.file = new MirMapFile(path.join(MIR_PATH, map.path), map.hd)
 					if (this.file.error) {
@@ -146,12 +153,18 @@ export default class MirMap {
 
 	// 计算寻路坐标
 	lpa(position: MirPosition, target: MirPosition, monster = false, distance = 0) {
-		const finder = new Pathfinding.AStarFinder({ diagonalMovement: 1 });
-		if (monster) {
-			this.tmpBinary[target.y][target.x] = 0
+		try {
+
+			const finder = new Pathfinding.AStarFinder({ diagonalMovement: 1 });
+			if (monster) {
+				this.tmpBinary[target.y][target.x] = 0
+			}
+			const roadPath = finder.findPath(position.x, position.y, target.x, target.y, new Pathfinding.Grid(this.tmpBinary))
+			this.roadPath = roadPath.slice(1, roadPath.length - distance).map(([x, y]) => ({ x, y }))
+		} catch {
+			this.roadPath = []
+			TURING.KM_Delay(500)
 		}
-		const roadPath = finder.findPath(position.x, position.y, target.x, target.y, new Pathfinding.Grid(this.tmpBinary))
-		this.roadPath = roadPath.slice(1, roadPath.length - distance).map(([x, y]) => ({ x, y }))
 	}
 
 	// 找到一个坐标附近的所有元素，按距离排序
