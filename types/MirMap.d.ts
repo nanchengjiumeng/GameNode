@@ -41,3 +41,10 @@ declare interface MAP_HD {
 	safe: number[][]
 	block: number[][]
 }
+
+
+declare interface GJMap {
+	name: string,
+	path: MirPosition[],
+	next?: MirPosition
+}
