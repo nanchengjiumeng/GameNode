@@ -69,7 +69,7 @@ export function GuaJi(): AbortController {
 	main.addListener("message", ({ type }: any) => {
 		if (type === LOST_TARGET || type === MAP_CHANGE) {
 			Controller.abort()
-			// return GuaJi()
+			return GuaJi()
 		}
 	})
 	return Controller

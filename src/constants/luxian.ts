@@ -2,14 +2,14 @@ import { NPC_LIST } from "../Constants"
 
 export const LabeslPositionThenClick: MirPostionThenUIPosition[] = [
 	{
-		label: '四相法阵',
-		position: NPC_LIST.find(i => i.name === '幽灵地堡').position,
-		uiPosition: { x: 71, y: 154 }
-	},
-	{
 		label: '幽灵地堡',
 		position: NPC_LIST.find(i => i.name === '幽灵地堡').position,
-		uiPosition: { x: 201, y: 154 }
+		uiPosition: { x: 60, y: 148 }
+	},
+	{
+		label: '四相法阵',
+		position: NPC_LIST.find(i => i.name === '幽灵地堡').position,
+		uiPosition: { x: 191, y: 148 }
 	}
 ]
 

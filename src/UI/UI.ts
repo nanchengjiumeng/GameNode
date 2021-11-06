@@ -499,8 +499,8 @@ export class UI extends Computed {
 		const retArr = ret.split('|').map(str => str.split(',').map(Number)).filter((arr) => {
 			return arr[0] !== -1
 		})
-
-		if (retArr[0]) {
+		result.packageOpend = retArr.length > 0
+		if (result.packageOpend) {
 			this.loadRegionFromScreen(this.regionPackage)
 			TURING.Filter_Posterization(4)
 			TURING.Filter_Binaryzation("0-61")
@@ -510,10 +510,20 @@ export class UI extends Computed {
 			TURING.Lib_Use(3)
 			const ret = TURING.OCR(91) || ""
 			result.packageFilled = 40 - ret.split("").filter(i => i === "空").length
+			// console.log(result.packageFilled);
+
 		}
 
-		result.packageOpend = retArr.length > 0
+
 		return result
+	}
+
+	windowPosition2ScreenPosition(posi: UIPosition): UIPosition {
+		this.updateWindowInfo()
+		return {
+			x: posi.x + this.windowSize[0][0] + 20,
+			y: posi.y + this.windowSize[0][1] + 29
+		}
 	}
 
 	detectHuishouButton() {
@@ -526,11 +536,7 @@ export class UI extends Computed {
 		const retHui = TURING.OCR(85, 1)
 		if (retHui) {
 			const [x, y] = retHui.split('|')[1].split(',').map(Number)
-			return {
-				x: x + this.windowSize[0][0] + 20,
-				y: y + this.windowSize[0][1] + 29
-
-			}
+			return this.windowPosition2ScreenPosition({ x, y })
 		}
 	}
 

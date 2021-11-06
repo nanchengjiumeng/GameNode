@@ -62,7 +62,7 @@ export default class MirMap {
 				if (name === this.name) {
 					start = idx
 				}
-				const danger = dnagerGJMap.find(dgjm => dgjm.name.includes(name))
+				const danger = dnagerGJMap.find(dgjm => dgjm.name === (name))
 				const copy: GJMap = JSON.parse(JSON.stringify(danger))
 				if (idx !== R.length - 1) {
 					copy.path = [copy.next]

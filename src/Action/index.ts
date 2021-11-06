@@ -134,7 +134,7 @@ export const moveMouse = cMoveMouse(({ x, y }) => {
 export const moveMouseThenLeftClick = async ({ x, y }, time = 500) => {
 	await moveMouse({ x, y })
 	await Computed.sleep(time)
-	fyl.LeftClick()
+	fyl.LeftClick(2)
 }
 
 /** 移动一步 */

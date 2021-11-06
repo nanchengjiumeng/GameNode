@@ -1,4 +1,4 @@
-import { ESC, moveMouseThenLeftClick, moveStep, transformMirPosition2UIPosition } from "../Action/index";
+import { ESC, moveMouse, moveMouseThenLeftClick, moveStep, transformMirPosition2UIPosition } from "../Action/index";
 import Character from "../Base/Charater";
 import MirMap from "../Base/MirMap";
 import Computed from "../UI/Computed";
@@ -10,6 +10,7 @@ import { ui } from "./Turing";
 import {
 	MAIN_EXIT_0020, LOST_TARGET
 } from "../Constants/Emergencies";
+import { LabeslPositionThenClick } from "../Constants/luxian";
 
 // 1. move 移动
 // 2. attack 攻击
@@ -28,6 +29,7 @@ const STATE_FIND_TARGET = 'target'
 const STATE_FIND_MAP = 'map'
 const STATE_SHORT_MOVE = 'short-move'
 const STATE_RECAIM = 'recaim'
+const STATE_GOTO_MAP = 'goto-map'
 
 
 
@@ -77,7 +79,8 @@ export class STATEMACHINE {
 				[STATE_RECAIM]: {
 					on: {
 						[STATE_MOVE]: STATE_MOVE,
-						[STATE_SHORT_MOVE]: STATE_SHORT_MOVE
+						[STATE_SHORT_MOVE]: STATE_SHORT_MOVE,
+						[STATE_FIND_MAP]: STATE_FIND_MAP
 					}
 				},
 				[STATE_MOVE]: {
@@ -86,14 +89,16 @@ export class STATEMACHINE {
 						[STATE_PICK_UP]: STATE_PICK_UP,
 						[STATE_FIND_MONSTER]: STATE_FIND_MONSTER,
 						[STATE_FIND_TARGET]: STATE_FIND_TARGET,
-						[STATE_RECAIM]: STATE_RECAIM
+						[STATE_RECAIM]: STATE_RECAIM,
+						[STATE_GOTO_MAP]: STATE_GOTO_MAP
 					}
 				},
 				[STATE_SHORT_MOVE]: {
 					on: {
 						[STATE_ATTACK]: STATE_ATTACK,
 						[STATE_PICK_UP]: STATE_PICK_UP,
-						[STATE_RECAIM]: STATE_RECAIM
+						[STATE_RECAIM]: STATE_RECAIM,
+
 					}
 				},
 				[STATE_ATTACK]: {
@@ -132,7 +137,15 @@ export class STATEMACHINE {
 				[STATE_FIND_MAP]: {
 					on: {
 						[STATE_FIND_MAP]: STATE_FIND_MAP,
-						[STATE_RECAIM]: STATE_RECAIM
+						[STATE_RECAIM]: STATE_RECAIM,
+						[STATE_GOTO_MAP]: STATE_GOTO_MAP,
+						[STATE_FIND_TARGET]: STATE_FIND_TARGET
+					}
+				},
+				[STATE_GOTO_MAP]: {
+					on: {
+						[STATE_FIND_MAP]: STATE_FIND_MAP,
+						[STATE_MOVE]: STATE_MOVE
 					}
 				}
 			}
@@ -143,8 +156,8 @@ export class STATEMACHINE {
 			await requestNextFrame()
 			if (this.character.death) {
 				await this.relive()
+				process.send(LOST_TARGET)
 			}
-
 			switch (value) {
 				case STATE_RECAIM:
 					this.recaim()
@@ -173,8 +186,40 @@ export class STATEMACHINE {
 				case STATE_SHORT_MOVE:
 					this.shortDistanceMove()
 					break;
+				case STATE_GOTO_MAP:
+					this.gotoMap()
+					break;
 			}
 		})
+	}
+
+	async gotoMap() {
+		ESC()
+		const inCurrentPath = !!this.map.GuaJiPath.find(p => p.name === this.map.name)
+		if (!inCurrentPath) {
+			const targetLel = this.map.GuaJiPath[0].name.slice(0, 4)
+			const mirPositionThenScreenPosition = LabeslPositionThenClick.find(i => i.label === targetLel)
+			if (
+				Computed.distance(mirPositionThenScreenPosition.position,
+					this.character.element.position) > 5
+			) {
+				this.map.lpa(this.character.element.position, mirPositionThenScreenPosition.position)
+				this.previousServiceType.push(STATE_GOTO_MAP)
+				this.justRun = true
+				this.service.send({ type: STATE_MOVE }) // 走到npc附近
+			} else {
+				// 点击
+				const p = transformMirPosition2UIPosition(this.character, mirPositionThenScreenPosition.position)
+				await moveMouseThenLeftClick({ x: p.x, y: p.y - PIXEL_MAP_BLOCK_HEIGHT * 1.5 })
+				await Computed.sleep(1500)
+				await moveMouseThenLeftClick(
+					ui.windowPosition2ScreenPosition(mirPositionThenScreenPosition.uiPosition)
+				)
+				ESC()
+				await Computed.sleep(500)
+				this.service.send({ type: this.previousServiceType.shift() })
+			}
+		}
 	}
 
 	backHome() {
@@ -185,12 +230,14 @@ export class STATEMACHINE {
 		// 如果已经到达地图, 则直接结束
 		if (this.map.name === '盟重省') {
 			const fill = await this.checkPackage()
-			console.log(fill);
 			if (fill >= 38) {
-
+				this.previousServiceType.push(STATE_FIND_MAP)
+				return this.service.send({ type: STATE_RECAIM })
 			}
-			// this.previousServiceType.push(STATE_FIND_MAP)
-			// return this.service.send({ type: STATE_RECAIM })
+			this.previousServiceType.push(STATE_FIND_MAP)
+			return this.service.send({ type: STATE_GOTO_MAP })
+		} else {
+			this.service.send({ type: STATE_FIND_TARGET })
 		}
 		// if () {
 
@@ -376,7 +423,7 @@ export class STATEMACHINE {
 	async recaim() {
 		logger.error(`回收中...`)
 		const charactorPosition = this.character.element.position
-		const npc = NPC_LIST.find(n => n.name.includes('装备回收'))
+		const npc = NPC_LIST.find(n => n.name === ('装备回收'))
 		if (Computed.distance(npc.position, charactorPosition) > 5) {
 			this.map.lpa(this.character.element.position, npc.position)
 			this.previousServiceType.push(STATE_RECAIM)
@@ -386,13 +433,13 @@ export class STATEMACHINE {
 			// 点击
 			const p = transformMirPosition2UIPosition(this.character, npc.position)
 			await moveMouseThenLeftClick({ x: p.x, y: p.y - PIXEL_MAP_BLOCK_HEIGHT * 1.5 })
-			await Computed.sleep(2000)
+			await Computed.sleep(500)
 			const button = ui.detectHuishouButton()
 			if (button) {
 				await moveMouseThenLeftClick(button, 200)
 				await Computed.sleep(200)
-				console.log('button');
 				ESC()
+				this.service.send({ type: this.previousServiceType.shift() })
 			} else {
 				this.recaim() // 如果找不到按钮，就重新运行
 			}
@@ -413,8 +460,10 @@ export class STATEMACHINE {
 	async checkPackage() {
 		ESC()
 		this.character.checkPackage()
-		await Computed.sleep(3000)
+		await Computed.sleep(500)
+		await requestNextFrame()
 		const fill = this.character.packageFill
+		await Computed.sleep(300)
 		ESC()
 		return fill
 	}

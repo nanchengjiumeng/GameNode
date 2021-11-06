@@ -157,7 +157,7 @@ export const NPC_LIST: NPC[] = [
 		name: '幽灵地堡',
 		position: {
 			x: 318,
-			y: 414
+			y: 341
 		}
 
 	},
