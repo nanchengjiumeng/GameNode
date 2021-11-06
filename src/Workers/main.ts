@@ -10,12 +10,14 @@ import { STATEMACHINE } from '../Main/State'
 const map = new MirMap()
 const character = new Character();
 
-process.once('message', async ({ type, mapName }) => {
+process.once('message', async ({ type, mapName, params }) => {
 	await requestNextFrame()
 	const machine = new STATEMACHINE(map, character)
 	machine.next()
 
 	if (type === 'GuaJi') {
+		machine.map.p = params.path
+		machine.map.setLuXian()
 		machine.service.send({ type })
 	}
 	if (type === 'HuiShou') {

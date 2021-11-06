@@ -1,10 +1,11 @@
-import { MAP_LIST, MIR_PATH } from "../Constants";
+import { MAP_LIST, MIR_PATH } from "../constants";
 import MirMapFile from "../Sources/MirMapLoader";
 import Computed from "../UI/Computed";
 import Pathfinding from "pathfinding";
 import path from "path";
 import { logger } from "../Main/logger";
 import { MAP_ERROR_1, MAP_ERROR_2 } from "../Constants/Emergencies";
+import { dnagerGJMap } from "../constants/luxian";
 
 export default class MirMap {
 	public file!: MirMapFile
@@ -14,6 +15,8 @@ export default class MirMap {
 	public mapList = MAP_LIST
 	public mapInfo!: MAP_HD
 	public roadPath: MirPosition[] = []
+	public GuaJiPath: GJMap[] = []
+	public p: string = ""
 	constructor() {
 
 	}
@@ -30,6 +33,7 @@ export default class MirMap {
 						throw new EvalError(MAP_ERROR_1)
 					}
 					this.mapInfo = map
+					this.setLuXian()
 				} else {
 					throw new EvalError(MAP_ERROR_2)
 				}
@@ -40,6 +44,27 @@ export default class MirMap {
 				msg: e.message
 			})
 		}
+	}
+
+	setLuXian() {
+		this.GuaJiPath = []
+		let start = 0
+		if (this.p) {
+			const R = this.p.split('->')
+			R.forEach((name, idx) => {
+				if (name === this.name) {
+					start = idx
+				}
+				const danger = dnagerGJMap.find(dgjm => dgjm.name.includes(name))
+				const copy: GJMap = JSON.parse(JSON.stringify(danger))
+				if (idx !== R.length - 1) {
+					copy.path = [copy.next]
+				}
+				this.GuaJiPath.push(copy)
+
+			})
+		}
+		this.GuaJiPath = this.GuaJiPath.slice(start)
 	}
 
 	/**
@@ -62,7 +87,7 @@ export default class MirMap {
 					this.tmpBinary[el.position.y][el.position.x] = 1
 				} catch (e) {
 					console.log(e);
-					
+
 					console.log(this.tmpBinary);
 
 				}
@@ -98,6 +123,7 @@ export default class MirMap {
 
 	// 随机一个目击地
 	radomAPostionSighting(): MirPosition | null {
+		this.p[0]
 		var position = null
 		while (!position) {
 			const x = Computed.random(this.file.header.width),
@@ -109,9 +135,18 @@ export default class MirMap {
 		return position
 	}
 
+	getAPositionSighting(): MirPosition | null {
+		try {
+			const path = this.GuaJiPath[0].path
+			return path.shift()
+		} catch {
+			return null
+		}
+	}
+
 	// 计算寻路坐标
 	lpa(position: MirPosition, target: MirPosition, monster = false, distance = 0) {
-		const finder = new Pathfinding.AStarFinder({ diagonalMovement: 4 });
+		const finder = new Pathfinding.AStarFinder({ diagonalMovement: 1 });
 		if (monster) {
 			this.tmpBinary[target.y][target.x] = 0
 		}

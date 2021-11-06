@@ -40,15 +40,18 @@ function createBaseProcess(signal: AbortSignal) {
 }
 
 
-export const CreateControllerForAction = (action: string) => () => {
+export const CreateControllerForAction = (action: string, params?: any) => () => {
 	const controller = new AbortController()
 	const main = createBaseProcess(controller.signal)
-	main.send({ type: action })
+	main.send({ type: action, params })
 	return { controller, main }
 }
 
 export const HuiShou = CreateControllerForAction('HuiShou')
-export const Gua = CreateControllerForAction('GuaJi')
+export const Gua = CreateControllerForAction('GuaJi', {
+	path: '幽灵地堡一层->幽灵地堡二层'
+	// path: '幽灵地堡一层->幽灵地堡二层->幽灵地堡三层'
+})
 
 export function CeShi(): AbortController {
 	const { controller: HuiShouController, main } = HuiShou()

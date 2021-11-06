@@ -22,6 +22,7 @@ import { Turing } from "ts-turing/types/turing";
 const { createTuring } = require('ts-turing')
 
 export const TURING: Turing = createTuring(path.join(MIR_PATH, 'rushb/dll/3.0.7/TURING.dll'))
+
 export class UI extends Computed {
 	handleList: number[] = [];
 	handle!: number;
@@ -36,7 +37,7 @@ export class UI extends Computed {
 		[PIXEL_MAP_BLOCK_START_X, PIXEL_MAP_BLOCK_START_Y],
 		[
 			PIXEL_MAP_BLOCK_WIDTH * PIXEL_MAP_BLOCK_ROW_NUMBER + PIXEL_MAP_BLOCK_START_X,
-			PIXEL_MAP_BLOCK_HEIGHT * PIXEL_MAP_BLOCK_COLUMN_NUMBER,
+			PIXEL_MAP_BLOCK_HEIGHT * (PIXEL_MAP_BLOCK_COLUMN_NUMBER + 2),
 		],
 	];
 	regionPickUp: Rect = [

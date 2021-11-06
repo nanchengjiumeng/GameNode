@@ -44,8 +44,8 @@ export class STATEMACHINE {
 		public map: MirMap,
 		public character: Character,
 		public distanceMonster = 20, // 如果范围11内有怪物开始找怪
-		public distanceAttack = 5,  // 如果怪物进入范围8以内进入攻击模式
-		public distanceAttackMonster = 2,
+		public distanceAttack = 6,  // 如果怪物进入范围8以内进入攻击模式
+		public distanceAttackMonster = 3,
 		public distancePickUp = 10,  // 捡起当前人物指定范围内的装备
 		public distanceBaiHu = 6, // 战斗时白虎最远距离
 
@@ -259,7 +259,6 @@ export class STATEMACHINE {
 					this.character.recallBaiHu()
 					await Computed.sleep(150)
 				}
-
 				this.character.poisonMonster(monster)
 				this.distanceAttackMonster = this.distanceAttackMonster1
 				return this.service.send({ type: STATE_ATTACK }) // 继续攻击
@@ -321,7 +320,9 @@ export class STATEMACHINE {
 	findTarget() {
 		if (!this.target || (this.target.x === this.character.element.position.x && this.target.y === this.character.element.position.y)) {
 			// 重置目标后，开始寻找目标
-			this.target = this.map.radomAPostionSighting()
+			this.target = this.map.getAPositionSighting()
+			console.log(this.target);
+			
 		}
 
 		const eques = this.map.findAllMirElement(this.character.element.position, 4, this.distancePickUp)
