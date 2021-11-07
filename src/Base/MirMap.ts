@@ -7,6 +7,7 @@ import { logger } from "../Main/logger";
 import { MAP_CHANGE, MAP_ERROR_1, MAP_ERROR_2 } from "../Constants/Emergencies";
 import { dnagerGJMap } from "../Constants/luxian";
 import { TURING } from "../Main/Turing";
+import Character from "./Charater";
 
 export default class MirMap {
 	public file!: MirMapFile
@@ -128,6 +129,18 @@ export default class MirMap {
 		return null
 	}
 
+	// 打怪时找到一个安全的位置
+	// 1. 找到白虎位置
+	// 2. 走到白虎附近的一个位置
+	findASafePoistion(position: MirPosition, distance: number): MirPosition {
+		const bai = this.findAllMirElement(position, 2, distance)
+		if (bai.length) {
+			return this.findAPositionCanAcross(bai[0].position, 3, 2)
+		} else {
+			return this.findAPositionCanAcross(position, 3, 2)
+		}
+	}
+
 	// 随机一个目击地
 	radomAPostionSighting(): MirPosition | null {
 		this.p[0]
@@ -173,7 +186,7 @@ export default class MirMap {
 			if (el.type !== type) return false
 			if (el.type === 4 && !this.canPositionAcross(el.position)) return
 			el.distance = Computed.distance(position, el.position)
-			return el.distance <= round
+			return el.distance <= round && el.distance !== 0
 		})
 		if (sort) {
 			return els.sort((a, b) => (a.distance as number) - (b.distance as number) > 0 ? 1 : -1)

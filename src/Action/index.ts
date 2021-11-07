@@ -108,14 +108,18 @@ export const cMoveMouse =
 				y: cur[1]
 			}
 			const d = Computed.distance(origin, target) * 0.6
-
+			let t = Number(new Date())
 			return new Promise((resolve) => {
 				animate({
 					from: origin,
 					to: target,
 					duration: d,
 					onUpdate: latest => {
-						dost(latest)
+						let t1 = Number(new Date())
+						if (t1 - t > 10) {
+							t = t1
+							dost(latest)
+						}
 					},
 					onComplete: () => {
 						// console.log(`移动鼠标耗时: ${timestamp() - start}`)
@@ -167,14 +171,14 @@ export function yinshen(delay = 350) {
 
 
 // 毒一下怪物
-export function poisonMonster(monster: MirElement, delay = 150) {
+export function poisonMonster(monster: MirElement, delay = 50) {
 	const positionInScreen = {
-		x: (monster.positionScreen[0][0] + monster.positionScreen[1][0]) / 2,
-		y: (monster.positionScreen[0][1]) - 2 * PIXEL_MAP_BLOCK_HEIGHT + 28
+		x: (monster.positionScreen[0][0] + monster.positionScreen[1][0]) / 2 + 5,
+		y: (monster.positionScreen[0][1]) - 2 * PIXEL_MAP_BLOCK_HEIGHT + 36
 	}
 	curveMove(positionInScreen)
 	TURING.KM_Delay(delay)
-	fyl.KeyPress(58, 1)
+	fyl.KeyPress(58, 3)
 }
 
 // 召唤白虎
@@ -192,4 +196,9 @@ export function ESC(delay = 50) {
 export function F9(delay = 50) {
 	fyl.KeyPress(66, 1)
 	TURING.KM_Delay(delay)
+}
+
+export function Number1(delay = 50) {
+	TURING.KM_Delay(delay)
+	fyl.KeyPress(30, 3)
 }

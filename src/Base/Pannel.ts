@@ -29,7 +29,10 @@ export default class {
 					name: "FUNCTIONS",
 					message: "请选择使用的功能?\r",
 					choices: [
-						"挂机",
+						"挂机,幽灵地堡一层->幽灵地堡二层->幽灵地堡",
+						'挂机,幽灵地堡一层->幽灵地堡二层',
+						'挂机,幽灵地堡一层',
+						'挂机,四相法阵',
 						"测试"
 					]
 				}
@@ -37,10 +40,11 @@ export default class {
 			])
 			.then((answers) => {
 				this.running = true
-				if (answers.FUNCTIONS === '挂机') {
+				const choice = answers.FUNCTIONS.split(',')
+				if (choice[0] === '挂机') {
 					// Use user feedback for... whatever!!
-					this.contoller = GuaJi()
-				} else if (answers.FUNCTIONS === "测试") {
+					this.contoller = GuaJi(choice[1])
+				} else if (choice[0] === "测试") {
 					this.contoller = CeShi()
 				}
 			})

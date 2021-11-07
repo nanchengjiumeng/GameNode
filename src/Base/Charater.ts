@@ -6,8 +6,8 @@ export default class Character {
 	hp: number[]
 	yinshenPosition: MirPosition | undefined
 	yinshenTimestamp: number = 0
-	yinshenCD = 10 * 1000
-	poisonCD = 8 * 1000
+	yinshenCD = 6 * 1000
+	poisonCD = 4 * 1000
 	posisonTimestamp: number = 0
 
 	packageOpened = false

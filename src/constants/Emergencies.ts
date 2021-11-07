@@ -7,3 +7,5 @@ export const MAIN_EXIT_0020 = '复活'
 export const MAIN_EXIT_0030 = '回收装备'
 export const MAIN_EXIT_0031 = '背包满了'
 export const OK = 'ok'
+export const Fill_PACKAGE = 38
+export const PACKAGE_CHECK_TIME = 30 * 1000

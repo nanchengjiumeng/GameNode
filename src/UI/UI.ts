@@ -158,6 +158,7 @@ export class UI extends Computed {
 		this.loadRegionFromScreen(this.regionMapName);
 		TURING.Filter_Binaryzation("ffffff");
 		TURING.Incise_RandomOrientation(0);
+		TURING.Incise_AutoCharData()
 		TURING.Lib_Use(6);
 		let ret = TURING.OCR(95)
 		ret = ret.replace(/(O|o)/g, "0") || "";
@@ -494,25 +495,25 @@ export class UI extends Computed {
 		const ret = TURING.FindImageExS(
 			0, 0, 500, 500,
 			// this.windowSize[0][0], this.windowSize[0][1], this.windowSize[1][0], this.windowSize[1][1],
-			`${path.join(this.mir, BMP_PACKAGE_COIN)}`, .95)
+			`${path.join(this.mir, BMP_PACKAGE_COIN)}|${path.join(this.mir, BMP_PACKAGE_LAST2)}`, .95)
 
 		const retArr = ret.split('|').map(str => str.split(',').map(Number)).filter((arr) => {
 			return arr[0] !== -1
 		})
 		result.packageOpend = retArr.length > 0
-		if (result.packageOpend) {
-			this.loadRegionFromScreen(this.regionPackage)
-			TURING.Filter_Posterization(4)
-			TURING.Filter_Binaryzation("0-61")
-			TURING.Filter_DespeckleEx(0, true, 1)
-			TURING.Filter_InverseColor(2)
-			TURING.Incise_ConnectedArea(true, "25-35", "12-35")
-			TURING.Lib_Use(3)
-			const ret = TURING.OCR(91) || ""
-			result.packageFilled = 40 - ret.split("").filter(i => i === "空").length
-			// console.log(result.packageFilled);
+		result.packageFilled = retArr.length > 1 ? 0 : 38
+		// if (result.packageOpend) {
+		// 	this.loadRegionFromScreen(this.regionPackage)
+		// 	TURING.Filter_Posterization(4)
+		// 	TURING.Filter_Binaryzation("0-58")
+		// 	TURING.Filter_DespeckleEx(1, true, 1)
+		// 	TURING.Filter_InverseColor(2)
+		// 	TURING.Incise_ConnectedArea(true, "12-36", "12-56")
+		// 	TURING.Lib_Use(3)
+		// 	const ret = TURING.OCR(90) || ""
+		// 	result.packageFilled = 40 - ret.split("").filter(i => i === "空").length
 
-		}
+		// }
 
 
 		return result

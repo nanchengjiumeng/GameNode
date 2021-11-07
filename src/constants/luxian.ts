@@ -17,7 +17,9 @@ export const LabeslPositionThenClick: MirPostionThenUIPosition[] = [
 export const dnagerGJMap: GJMap[] = [
 	{
 		name: "四相法阵",
-		path: [],
+		path: [{ x: 46, y: 21 }, { x: 69, y: 48 }, { x: 46, y: 75 }, { x: 42, y: 65 }
+			, { x: 23, y: 46 }, { x: 36, y: 29 }
+		],
 	},
 	{
 		name: "幽灵地堡一层",

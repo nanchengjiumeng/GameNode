@@ -48,28 +48,28 @@ export const CreateControllerForAction = (action: string, params?: any) => () =>
 }
 
 export const HuiShou = CreateControllerForAction('HuiShou')
-export const Gua = CreateControllerForAction('GuaJi', {
-	path: '幽灵地堡一层->幽灵地堡二层->幽灵地堡'
-	// path: '幽灵地堡一层->幽灵地堡二层->幽灵地堡三层'
-})
+
 
 export function CeShi(): AbortController {
 	const { controller: HuiShouController, main } = HuiShou()
 	main.addListener('message', (evt: MainProcessMessage) => {
 		if (evt.type === MAIN_EXIT_0031) {
 			HuiShouController.abort()
-			console.log(1);
 		}
 	})
 	return HuiShouController
 }
 
-export function GuaJi(): AbortController {
+export function GuaJi(path: string): AbortController {
+	const Gua = CreateControllerForAction('GuaJi', {
+		path
+		// path: '幽灵地堡一层->幽灵地堡二层->幽灵地堡三层'
+	})
 	let { controller: Controller, main } = Gua()
 	main.addListener("message", ({ type }: any) => {
 		if (type === LOST_TARGET || type === MAP_CHANGE) {
 			Controller.abort()
-			return GuaJi()
+			return GuaJi(path)
 		}
 	})
 	return Controller

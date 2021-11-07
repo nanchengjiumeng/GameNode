@@ -1,4 +1,4 @@
-import { ESC, moveMouse, moveMouseThenLeftClick, moveStep, transformMirPosition2UIPosition } from "../Action/index";
+import { ESC, moveMouseThenLeftClick, moveStep, Number1, transformMirPosition2UIPosition } from "../Action/index";
 import Character from "../Base/Charater";
 import MirMap from "../Base/MirMap";
 import Computed from "../UI/Computed";
@@ -8,7 +8,7 @@ import { requestNextFrame } from "../Workers/main";
 import { NPC_LIST, PIXEL_MAP_BLOCK_HEIGHT } from "../Constants";
 import { ui } from "./Turing";
 import {
-	MAIN_EXIT_0020, LOST_TARGET
+	MAIN_EXIT_0020, LOST_TARGET, Fill_PACKAGE, PACKAGE_CHECK_TIME
 } from "../Constants/Emergencies";
 import { LabeslPositionThenClick } from "../Constants/luxian";
 
@@ -43,6 +43,7 @@ export class STATEMACHINE {
 	mapTarget: string
 	start = false
 	justRun = false
+	_lastRequestTimestamp = Number(new Date())
 	__next: () => void
 	constructor(
 		public map: MirMap,
@@ -153,10 +154,15 @@ export class STATEMACHINE {
 
 		this.service = interpret(state).onTransition(async (state) => {
 			const value = state.value
+			const currentTimestamp = Number(new Date())
 			await requestNextFrame()
 			if (this.character.death) {
 				await this.relive()
 				process.send(LOST_TARGET)
+			}
+			if (currentTimestamp - this._lastRequestTimestamp > PACKAGE_CHECK_TIME) {
+				this._lastRequestTimestamp = currentTimestamp
+				this.checkPackageThenBackHome()
 			}
 			switch (value) {
 				case STATE_RECAIM:
@@ -230,7 +236,7 @@ export class STATEMACHINE {
 		// 如果已经到达地图, 则直接结束
 		if (this.map.name === '盟重省') {
 			const fill = await this.checkPackage()
-			if (fill >= 38) {
+			if (fill >= Fill_PACKAGE) {
 				this.previousServiceType.push(STATE_FIND_MAP)
 				return this.service.send({ type: STATE_RECAIM })
 			}
@@ -248,7 +254,7 @@ export class STATEMACHINE {
 		logger.primary(`短距离位移中...`)
 		let startPosition = this.character.element.position
 		try {
-			while (this.map.roadPath.length > 0) {
+			if (this.map.roadPath.length > 0) {
 				const long = []
 				let run = false
 				if (this.map.roadPath.length > 0) {
@@ -329,7 +335,7 @@ export class STATEMACHINE {
 			if (monster.distance < this.distanceAttackMonster) {
 				logger.primary(`攻击中...走远点`)
 				// 怪物位置太近
-				this.monsterTarget = this.map.findAPositionCanAcross(this.character.element.position, 2, 1)
+				this.monsterTarget = this.map.findASafePoistion(this.character.element.position, this.distanceBaiHu)
 				if (this.monsterTarget) {
 					this.map.lpa(this.character.element.position, this.monsterTarget, true)
 				}
@@ -466,6 +472,14 @@ export class STATEMACHINE {
 		await Computed.sleep(300)
 		ESC()
 		return fill
+	}
+
+	async checkPackageThenBackHome() {
+		const fill = await this.checkPackage()
+		if (fill >= Fill_PACKAGE) {
+			Number1()
+			await Computed.sleep(500)
+		}
 	}
 
 }
