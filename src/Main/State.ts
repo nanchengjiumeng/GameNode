@@ -333,7 +333,13 @@ export class STATEMACHINE {
 				return this.service.send({ type: STATE_MOVE }) // 走到怪物指定距离以内
 			}
 			if (monster.distance < this.distanceAttackMonster) {
+				this.character.yinshen()
 				logger.primary(`攻击中...走远点`)
+				const baiHu = this.map.findAllMirElement(this.character.element.position, 2, 2)
+				if (baiHu.length <= 0) {
+					this.character.recallBaiHu(0)
+					await Computed.sleep(200)
+				}
 				// 怪物位置太近
 				this.monsterTarget = this.map.findASafePoistion(this.character.element.position, this.distanceBaiHu)
 				if (this.monsterTarget) {
